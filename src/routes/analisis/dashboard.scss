@@ -1,0 +1,50 @@
+@use "../../global.scss" as *;
+
+.analysisDashboardArea {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  position: relative;
+  padding: $padding_medium;
+
+  button.new-analysis {
+    margin: 0 auto;
+  }
+
+  .history-area {
+    margin-top: $padding_large;
+    border-radius: $global_border_radius;
+    background-color: $color_primary_leonardo_white;
+    box-shadow: $box_shadow_common;
+    color: $color_primary_leonardo_dark_gray;
+    padding: $padding_medium;
+    flex-grow: 1;
+    height: 20%;
+    display: flex;
+    flex-direction: column;
+
+    .top {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-self: end;
+
+      .title {
+        font-size: $history_area_title_font_size;
+        font-weight: bold;
+        color: $title_color;
+        align-self: center;
+      }
+    }
+
+    .scrollable-table {
+      overflow: auto;
+      margin-top: $padding_medium;
+      height: 100%;
+      border-top-right-radius: $global_border_radius;
+      border-top-left-radius: $global_border_radius;
+      position: relative;
+    }
+  }
+}

@@ -1,0 +1,139 @@
+@use "sass:color";
+
+$color_primary_leonardo_red: #e4002b;
+$color_primary_leonardo_black: #000000;
+$color_primary_leonardo_dark_gray: #37424a;
+$color_primary_leonardo_light_gray: #d2ccc4;
+$color_primary_leonardo_white: #ffffff;
+
+$color_secondary_dark_green: #005b55;
+$color_secondary_cyan_green: #007985;
+$color_secondary_green: #00a878;
+$color_secondary_light_green: #3be4ab;
+
+$color_secondary_dark_blue: #0a05b0;
+$color_secondary_blue: #5aaff8;
+$color_secondary_lavander_blue: #7a91e5;
+$color_secondary_light_blue: #8af0f4;
+
+$color_secondary_yellow: #f8e700;
+$color_secondary_orange: #d1a22c;
+$color_secondary_orange_red: #f95618;
+$color_secondary_violet: #c663ff;
+
+$font_family_primary: "Arial", sans-serif;
+$font_family_titles: "Helvetica Neue", sans-serif;
+
+$global_border_radius: 0.4rem;
+$box_shadow_common: 0px 0px 10px rgba(0, 0, 0, 0.1);
+
+$color_semi_transparent_black: rgba($color_primary_leonardo_dark_gray, 0.5);
+// LAYOUT COLORS AND DIMENSIONS
+$color_bg_sidebar: color.adjust($color_secondary_cyan_green, $lightness: -10%);
+$color_bg_sidebar_darker: color.adjust(
+  $color_secondary_cyan_green,
+  $lightness: -20%
+);
+$color_bg_navbar: $color_primary_leonardo_white;
+$color_bg_sidebar_links_hover: rgba($color_primary_leonardo_white, 0.1);
+$color_bg_sidebar_links_selected: $color_secondary_cyan_green;
+$color_bg_main_content: color.adjust(
+  $color_primary_leonardo_light_gray,
+  $lightness: +15%
+);
+
+$topbar_height: 100px;
+
+$padding_small: 10px;
+$padding_medium: 20px;
+$padding_large: 30px;
+
+$gap_links: 10px;
+
+$box_shadow_navbar: $box_shadow_common;
+
+// NAVBAR - TITLE
+$title_color: $color_bg_sidebar_darker;
+$title_font_size: 2rem;
+$title_font_weight: bold;
+
+// NAVBAR - USER AVATAR AND INFO
+$username_font_size: 1.9rem;
+$role_font_size: 1.2rem;
+$username_align: right;
+
+$avatar_size: 60px;
+$avatar_font_size: 1.9rem;
+$color_bg_avatar: $color_secondary_cyan_green;
+
+// HISTORY AREA
+$history_area_title_font_size: 1.5rem;
+$columns_min_width: 150px;
+$description_min_width: 700px;
+$description_max_height: 150px;
+$parts_number_min_width: calc($columns_min_width);
+$color_bg_table_row_hover: rgba($color_primary_leonardo_light_gray, 0.5);
+$inner_shadow_active_row: inset 0px 0px 400px rgba(0, 0, 0, 0.2);
+
+// ANALYSIS FILTERS
+
+$secondary_category_padding_left: calc($padding_large * 1.5);
+$category_hover_bg_color: rgba($color_bg_sidebar_links_selected, 0.2);
+$category_font_size: 1.3rem;
+
+// OVERVIEW PAGE
+
+$overview_page_padding: $padding_medium;
+$overview_page_margin: $padding_medium;
+$overview_thick_border: 2px solid $color_bg_sidebar;
+
+// CHAT
+
+// $bot_message_bg_color: color.adjust($color_secondary_orange, $lightness: +20%);
+
+// $bot_message_font_color: $color_primary_leonardo_black;
+// $bot_message_bg_color: color.adjust(
+//   $color_secondary_lavander_blue,
+//   $lightness: +10%
+// );
+
+// $bot_message_font_color: $color_primary_leonardo_black;
+$bot_message_bg_color: color.adjust(
+  $color_primary_leonardo_light_gray,
+  $lightness: +10%
+);
+$bot_message_font_color: $color_primary_leonardo_dark_gray;
+
+// $bot_message_bg_color: color.adjust(
+//   $color_primary_leonardo_red,
+//   $lightness: +1%
+// );
+// $bot_message_font_color: $color_primary_leonardo_white;
+
+$user_message_bg_color: color.adjust(
+  $color_secondary_cyan_green,
+  $lightness: -10%
+);
+$user_message_font_color: $color_primary_leonardo_white;
+
+$input_font_size: 1.3rem;
+
+// SCROLLBARS
+*::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: $color_semi_transparent_black;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+// MEDIA QUERIES
+$breakpoint_mobile: 768px;
+$breakpoint_tablet: 1024px;
+$breakpoint_laptop: 1440px;
+$breakpoint_desktop: 2560px;

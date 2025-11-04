@@ -1,0 +1,263 @@
+@use "../../../global.scss" as *;
+@use "sass:color";
+
+.chat-page-container {
+  display: flex;
+  flex-direction: column;
+  height: 90%;
+  width: 90%;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: $color_primary_leonardo_white;
+  padding: $padding_medium;
+  border-radius: $global_border_radius;
+  box-shadow: $box_shadow_common;
+  display: flex;
+
+  .settings-toggle {
+    position: absolute;
+    top: $padding_medium;
+    right: $padding_large;
+    margin-top: $padding_small;
+  }
+
+  .chat-area {
+    border: $overview_thick_border;
+    border-radius: $global_border_radius;
+    flex-grow: 1;
+    padding: $padding_medium;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    position: relative;
+
+    .settings-panel {
+      height: 100%;
+      width: 100%;
+
+      & > div {
+        width: 100%;
+        height: 100%;
+        flex-grow: 1;
+        border-collapse: collapse;
+        background-color: $color_primary_leonardo_white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: $padding_medium;
+        gap: $padding_medium;
+        overflow: hidden;
+        &.saved-prompts-area {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          overflow: hidden;
+          width: 100%;
+
+          .split-view {
+            display: flex;
+            gap: $padding_small;
+            margin-bottom: $padding_small;
+            overflow: hidden;
+            flex-grow: 1;
+            width: 100%;
+
+            .side {
+              flex: 1;
+              flex-shrink: 0;
+              width: 50%;
+              text-align: center;
+              padding: $padding_small;
+              border: $overview_thick_border;
+              border-radius: $global_border_radius;
+              cursor: pointer;
+              background-color: $color_bg_sidebar_links_hover;
+
+              &.active {
+                background-color: $color_bg_sidebar_links_selected;
+                color: $color_primary_leonardo_white;
+              }
+            }
+          }
+
+          .scrollable-table {
+            overflow: auto;
+            height: 100%;
+          }
+        }
+
+        h3 {
+          font-size: $username_font_size;
+          text-transform: uppercase;
+          color: $color_bg_sidebar;
+        }
+
+        .scrollable-area {
+          flex-grow: 1;
+          width: 100%;
+          overflow-y: auto;
+          .message.bot,
+          .message.user {
+            align-self: center;
+            max-width: 100%;
+
+            .buttons-area {
+              justify-content: flex-end;
+            }
+          }
+        }
+
+        &.report-area {
+          .scrollable-area {
+            margin: auto;
+            width: fit-content;
+            .message.report {
+              background-color: $bot_message_bg_color;
+              color: $bot_message_font_color;
+              max-width: 100%;
+              margin-bottom: calc(2 * $padding_large);
+
+              .buttons-area {
+                left: 0;
+              }
+            }
+          }
+        }
+
+        &.prompt-area {
+          .split-view {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            gap: $padding_small;
+            justify-content: space-between;
+
+            & > div:last-child {
+              background-color: $color_bg_sidebar_links_selected;
+              border-radius: $global_border_radius;
+              padding: $padding_small;
+            }
+
+            .form-section {
+              padding: $padding_small;
+              & > div {
+                margin-bottom: $padding_medium;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .message {
+      padding: $padding_small;
+      min-width: 20%;
+      margin-bottom: calc($padding_medium + 1.2rem);
+      border-radius: $global_border_radius;
+      max-width: 80%;
+      width: fit-content;
+      position: relative;
+      .buttons-area {
+        margin-top: $padding_small;
+        display: flex;
+        position: absolute;
+        bottom: -0.2rem;
+        transform: translateY(100%);
+        gap: $padding_medium;
+      }
+
+      &:last-child {
+        margin-bottom: 2rem;
+      }
+
+      &.bot {
+        background-color: $bot_message_bg_color;
+        color: $bot_message_font_color;
+        align-self: flex-start;
+
+        .buttons-area {
+          justify-content: flex-start;
+          left: 0;
+        }
+      }
+
+      &.user {
+        background-color: $user_message_bg_color;
+        color: $user_message_font_color;
+        align-self: flex-end;
+        .buttons-area {
+          justify-content: flex-end;
+          right: 0;
+        }
+      }
+    }
+  }
+
+  button {
+    @media screen and (max-width: $breakpoint_mobile) {
+      width: 100%;
+    }
+  }
+  .input-area {
+    margin: $padding_small 0;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: $padding_small;
+
+    button {
+      flex-shrink: 0;
+      height: 100%;
+    }
+
+    @media screen and (max-width: $breakpoint_mobile) {
+      flex-direction: column;
+      height: auto;
+    }
+
+    textarea {
+      flex-grow: 1;
+      width: 100%;
+      padding: $padding_small;
+      resize: none;
+      border: $overview_thick_border;
+      border-radius: $global_border_radius;
+      font-size: $input_font_size;
+
+      &:focus {
+        outline: none;
+        box-shadow: $box_shadow_common;
+      }
+    }
+
+    .buttons {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: $padding_small;
+
+      button {
+        height: 100%;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .bottom-buttons {
+    display: flex;
+    gap: $padding_small;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+
+    @media screen and (max-width: $breakpoint_tablet) {
+      justify-content: space-between;
+
+      button {
+        flex-grow: 1;
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+@use "../../global.scss" as *;
+
+.dashboard-container {
+  background-color: $color_primary_leonardo_white;
+  height: 90%;
+  width: 90%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: $global_border_radius;
+  box-shadow: $box_shadow_common;
+  padding: $padding_medium;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    font-size: $history_area_title_font_size;
+    font-weight: bold;
+  }
+
+  .scrollable-table {
+    overflow: auto;
+    margin-top: $padding_medium;
+    height: 100%;
+    border-top-right-radius: $global_border_radius;
+    border-top-left-radius: $global_border_radius;
+  }
+}

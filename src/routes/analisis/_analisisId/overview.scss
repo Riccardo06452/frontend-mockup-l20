@@ -1,0 +1,121 @@
+@use "../../../global.scss" as *;
+
+.overview-page {
+  padding: $overview_page_padding;
+  margin: $overview_page_margin;
+  border-radius: $global_border_radius;
+  box-shadow: $box_shadow_common;
+  height: calc(100% - 2 * $overview_page_margin);
+  background-color: $color_primary_leonardo_white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $padding_medium;
+
+  .data-area {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .scrollable-table {
+      flex-shrink: 0;
+      overflow: auto;
+      border-radius: $global_border_radius;
+      position: relative;
+      margin-bottom: $padding_large;
+      border: $overview_thick_border;
+
+      * {
+        cursor: default !important;
+        user-select: auto !important;
+        pointer-events: none !important;
+      }
+
+      th,
+      td {
+        min-width: fit-content !important;
+        white-space: nowrap !important;
+      }
+    }
+
+    .ai-description {
+      flex-shrink: 0;
+      border: $overview_thick_border;
+      border-radius: $global_border_radius;
+      overflow: auto;
+      max-height: 20vh;
+      margin-bottom: $padding_large;
+
+      .title {
+        background-color: $color_bg_sidebar;
+        color: $color_primary_leonardo_white;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: $padding_small;
+      }
+
+      .text {
+        padding: $padding_small;
+      }
+    }
+
+    .dataset-area {
+      flex-grow: 1;
+      position: relative;
+      border-radius: $global_border_radius;
+      border: $overview_thick_border;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+
+      &.show-chat-table {
+        table.dataset {
+          display: none;
+        }
+
+        table.chat {
+          display: table;
+        }
+      }
+
+      table.chat {
+        display: none;
+      }
+
+      .table-area {
+        overflow: auto;
+        width: 100%;
+        flex-grow: 1;
+
+        td:not(:nth-child(2)) {
+          min-width: fit-content !important;
+          white-space: nowrap !important;
+        }
+      }
+      .buttons {
+        display: flex;
+        justify-content: flex-end;
+        padding: calc($padding_small/2) $padding_small;
+        align-items: center;
+        gap: $padding_large;
+      }
+    }
+  }
+
+  .actions-buttons {
+    display: flex;
+    gap: $padding_large;
+    justify-content: flex-end;
+    width: 100%;
+  }
+}
+
+.loading-indicator {
+  text-align: center;
+  font-size: $title_font_size;
+  font-weight: $title_font_weight;
+  padding: $padding_large;
+  color: $color_bg_sidebar_darker;
+}

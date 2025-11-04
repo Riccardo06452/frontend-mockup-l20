@@ -1,0 +1,55 @@
+@use "./global.scss" as *;
+
+table {
+  user-select: none;
+  border-spacing: 0;
+  color: $color_primary_leonardo_dark_gray;
+  overflow-y: hidden;
+  min-width: 100%;
+
+  th,
+  td {
+    padding: $padding_small $padding_medium;
+    text-align: left;
+    font-family: $font_family_primary;
+    font-size: 1rem;
+    border-bottom: 1px solid $color_primary_leonardo_light_gray;
+    min-width: $columns_min_width;
+
+    .description {
+      min-width: $description_min_width;
+      max-height: $description_max_height;
+      overflow: auto;
+    }
+
+    &.parts-number {
+      min-width: $parts_number_min_width;
+      max-height: $description_max_height;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  thead {
+    background-color: $color_bg_sidebar;
+    color: $color_primary_leonardo_white;
+    text-transform: capitalize;
+    position: sticky;
+    top: 0;
+  }
+
+  tbody {
+    tr {
+      &:hover {
+        background-color: $color_bg_table_row_hover;
+        cursor: pointer;
+      }
+      &:last-child td {
+        border-bottom: none;
+      }
+      &:active {
+        box-shadow: $inner_shadow_active_row;
+      }
+    }
+  }
+}

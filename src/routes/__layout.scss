@@ -1,0 +1,143 @@
+@use "../global.scss" as *;
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+
+  .sidebar {
+    width: 250px;
+    background-color: $color_bg_sidebar;
+    color: $color_primary_leonardo_white;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    flex-grow: 0;
+
+    @media screen and (max-width: $breakpoint_tablet) {
+      position: fixed;
+      z-index: 1000;
+      height: 100vh;
+      left: -100vw;
+      width: 100vw;
+      transition: left 0.3s ease-in-out;
+      &.open {
+        left: 0;
+      }
+    }
+
+    .logo {
+      height: $topbar_height;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $font_family_titles;
+      background-color: $color_bg_sidebar_darker;
+    }
+
+    .link-list {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: $padding_small 0px;
+      gap: $gap_links;
+      font-family: $font_family_primary;
+
+      .link {
+        color: $color_primary_leonardo_white;
+        text-decoration: none;
+        padding: $padding_large $padding_small;
+        display: flex;
+        align-items: center;
+        gap: $padding_small;
+
+        svg {
+          width: 2rem;
+          height: 2rem;
+        }
+
+        &:hover {
+          background-color: $color_bg_sidebar_links_hover;
+        }
+
+        &.selected {
+          background-color: $color_bg_sidebar_links_selected;
+          border-left: 3px solid $color_primary_leonardo_white;
+        }
+      }
+    }
+
+    .logout {
+      height: $topbar_height;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $font_family_primary;
+      background-color: $color_bg_sidebar_darker;
+    }
+  }
+
+  .main-content {
+    width: calc(100% - 250px);
+    background-color: $color_bg_main_content;
+    font-family: $font_family_primary;
+    overflow: hidden;
+
+    @media screen and (max-width: $breakpoint_tablet) {
+      width: 100%;
+    }
+
+    .navbar {
+      background-color: $color_bg_navbar;
+      padding: 0 $padding_large;
+      color: $color_primary_leonardo_dark_gray;
+      font-family: $font_family_titles;
+      height: $topbar_height;
+      width: 100%;
+      box-shadow: $box_shadow_navbar;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .title {
+        font-size: $title_font_size;
+        font-weight: $title_font_weight;
+      }
+
+      .user {
+        display: flex;
+        gap: $padding_medium;
+        align-items: center;
+
+        .generics {
+          text-align: $username_align;
+          .name {
+            font-size: $username_font_size;
+          }
+
+          .role {
+            font-size: $role_font_size;
+          }
+        }
+
+        .avatar {
+          width: $avatar_size;
+          height: $avatar_size;
+          text-align: center;
+          line-height: $avatar_size;
+          background-color: $color_bg_avatar;
+          color: $color_primary_leonardo_white;
+          font-size: $avatar_font_size;
+          border-radius: $global_border_radius;
+        }
+      }
+    }
+
+    .content {
+      overflow: hidden;
+      position: relative;
+      flex-grow: 0;
+      flex-shrink: 0;
+      height: calc(100vh - $topbar_height);
+    }
+  }
+}

@@ -1,0 +1,133 @@
+@use "./global.scss" as *;
+@use "sass:color";
+
+$button_transition_speed: 0.3s;
+$big_button_font_size: 1.2rem;
+$button_font_weight: bold;
+$big_button_font_weight: bold;
+
+$button_hover_brightness: -10%;
+$big_button_padding: $padding_medium $padding_large * 2;
+$inner_shadow_active: inset 0px 0px 30px rgba(0, 0, 0, 0.2);
+
+button {
+  cursor: pointer;
+  border: none;
+  padding: $padding_medium $padding_large;
+  border-radius: $global_border_radius;
+  font-weight: $button_font_weight;
+  transition: color $button_transition_speed,
+    background-color $button_transition_speed,
+    box-shadow $button_transition_speed;
+  box-shadow: $box_shadow_common;
+  color: $color_primary_leonardo_dark_gray;
+
+  &.no-wrap {
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background-image: linear-gradient(
+      to left,
+      $color_primary_leonardo_white,
+      color.adjust(
+        $color_primary_leonardo_white,
+        $lightness: $button_hover_brightness
+      )
+    );
+  }
+  &:active {
+    box-shadow: $inner_shadow_active !important;
+  }
+
+  &.primary {
+    background-color: $color_primary_leonardo_red;
+    color: $color_primary_leonardo_white;
+
+    &:disabled,
+    &:disabled:hover {
+      background-image: none !important;
+      background-color: color.adjust(
+        $color_primary_leonardo_red,
+        $lightness: -20%
+      ) !important;
+      cursor: default !important;
+    }
+
+    &:hover {
+      background-image: linear-gradient(
+        to left,
+        $color_primary_leonardo_red,
+        color.adjust(
+          $color_primary_leonardo_red,
+          $lightness: $button_hover_brightness
+        )
+      );
+    }
+  }
+
+  &.bot-color {
+    background-color: $bot_message_bg_color;
+    color: $bot_message_font_color;
+
+    &:hover {
+      background-image: linear-gradient(
+        to left,
+        $bot_message_bg_color,
+        color.adjust(
+          $bot_message_bg_color,
+          $lightness: $button_hover_brightness
+        )
+      );
+    }
+
+    &:disabled,
+    &:disabled:hover {
+      background-image: none !important;
+      background-color: color.adjust(
+        $bot_message_bg_color,
+        $lightness: -20%
+      ) !important;
+      cursor: default !important;
+    }
+  }
+
+  &.secondary {
+    background-color: $color_bg_sidebar;
+    color: $color_primary_leonardo_white;
+
+    &:hover {
+      background-image: linear-gradient(
+        to left,
+        $color_bg_sidebar,
+        color.adjust($color_bg_sidebar, $lightness: $button_hover_brightness)
+      );
+    }
+
+    &:disabled,
+    &:disabled:hover {
+      background-image: none !important;
+      opacity: 0.6 !important;
+      cursor: default !important;
+    }
+  }
+
+  &.border-white {
+    border: 2px solid $color_primary_leonardo_white;
+  }
+
+  &.full-width {
+    width: 100%;
+  }
+
+  &.big {
+    font-size: $big_button_font_size;
+    padding: $big_button_padding;
+    font-weight: $big_button_font_weight;
+  }
+
+  &.small {
+    padding: calc($padding_small/2) $padding_small;
+    font-size: 0.9rem;
+  }
+}
