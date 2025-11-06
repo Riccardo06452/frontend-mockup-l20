@@ -50,6 +50,10 @@ table {
       &:active {
         box-shadow: $inner_shadow_active_row;
       }
+
+      &.selected {
+        background-color: $color_bg_table_row_selected;
+      }
     }
   }
 }

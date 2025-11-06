@@ -1,21 +1,111 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./overview.scss";
+import useAnalysisDashboardStore from "../../../stores/useAnalysisDashboardStore";
+import useChatDashboardStore from "../../../stores/useChatDashboardStore";
 
 function AnalysisOverview() {
   const { analysisId } = useParams();
   const navigate = useNavigate();
+  const [currentData, setCurrentData] = React.useState(null);
+  const {
+    data,
+    fetchData,
+    selected_analysis_data,
+    fetchDataFromAnalysisId,
+    createExcelFileForDataset,
+  } = useAnalysisDashboardStore();
+  const { loadChatsHistoryByAnalysisId, loadedChatsHistory } =
+    useChatDashboardStore();
 
   const [showChatTable, setShowChatTable] = React.useState(false);
+  const [showOpenChatMenu, setShowOpenChatMenu] = React.useState(false);
   const isReady = analysisId.startsWith("1"); // Simulazione dello stato di prontezza
+
+  useEffect(() => {
+    if (data && analysisId) {
+      if (data.length === 0) {
+        console.log("Data is empty.");
+        fetchData();
+        return;
+      }
+      console.log("Data and analysisId are available:", data, analysisId);
+
+      const filteredData = data.filter(
+        (item) => item.id.toString() === analysisId
+      );
+      if (filteredData.length > 0) {
+        setCurrentData(filteredData[0]);
+      }
+    } else {
+      console.log("Data or analysisId is not available yet.");
+    }
+  }, [fetchData, setCurrentData, analysisId, data]);
 
   const open_chat = (id) => {
     navigate(`/chat/${id}`);
   };
 
+  const openNewChat = () => {
+    if (loadedChatsHistory == null || loadedChatsHistory.length === 0) {
+      navigate(`/chat/${analysisId}_` + Math.floor(Math.random() * 10000));
+    } else {
+      setShowOpenChatMenu(true);
+    }
+  };
+
+  useEffect(() => {
+    fetchDataFromAnalysisId(analysisId);
+    loadChatsHistoryByAnalysisId(analysisId);
+  }, [analysisId, loadChatsHistoryByAnalysisId, fetchDataFromAnalysisId]);
+
   return (
     <div className="overview-page">
+      {showOpenChatMenu && (
+        <div
+          className="overlay"
+          onClick={(e) => {
+            if (e.target.className === "overlay") {
+              setShowOpenChatMenu(false);
+            }
+          }}
+        >
+          <div className="open-chat-menu">
+            <p>
+              Attention: <b>{loadedChatsHistory.length}</b> chats already
+              existing for this analysis.
+            </p>
+            <div className="buttons-section">
+              <button
+                className="secondary no-wrap"
+                onClick={() =>
+                  navigate(
+                    `/chat/${analysisId}_` + Math.floor(Math.random() * 10000)
+                  )
+                }
+              >
+                Create New Chat
+              </button>
+              <button
+                className="secondary no-wrap"
+                onClick={() => navigate(`/chat/${loadedChatsHistory[0].id}`)}
+              >
+                Open Last Chat
+              </button>
+              <button
+                className="secondary no-wrap"
+                onClick={() => {
+                  setShowChatTable(true);
+                  setShowOpenChatMenu(false);
+                }}
+              >
+                Show Chats List
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <button
         className="secondary small"
         onClick={() => navigate("/analysis/dashboard")}
@@ -23,59 +113,50 @@ function AnalysisOverview() {
         {"< Dashboard"}
       </button>
       <div className="data-area">
-        <div className="scrollable-table">
-          <table>
-            <thead>
-              <tr>
-                <th>id</th>
-                <th>creato il</th>
-                <th>range date</th>
-                <th>sito</th>
-                <th>PN</th>
-                <th>Categoria NC</th>
-                <th>Tipologia</th>
-                <th>Stato</th>
-                <th>Num Record</th>
-                <th>Num Categorie</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>
-                  12/05/2024 <br /> 14:30
-                </td>
-                <td>01/05/2024 - 10/05/2024</td>
-                <td>Fornitore esterno XYZ Ltd.</td>
-                <td>12356,78901,45623, 98745,32165,65432, 11223,33445,55667</td>
-                <td>NC ingegneristica</td>
-                <td>produzione</td>
-                <td>Aperto</td>
-                <td>458</td>
-                <td>47</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {currentData && (
+          <div className="scrollable-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>id</th>
+                  <th>creato il</th>
+                  <th>range date</th>
+                  <th>sito</th>
+                  <th>PN</th>
+                  <th>Categoria NC</th>
+                  <th>Stato</th>
+                  <th>Num Record</th>
+                  <th>Num Categorie</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{currentData.id}</td>
+                  <td>{currentData.created_at}</td>
+                  <td>{currentData.range_date}</td>
+                  <td>{currentData.site}</td>
+                  <td>{currentData.part_numbers.join(", ")}</td>
+                  <td>{currentData.nc_category}</td>
+                  <td>{currentData.status}</td>
+                  <td>{currentData.num_records}</td>
+                  <td>{currentData.num_categories}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
         <div className="ai-description">
           <div className="title">Descrizione Generata dall'AI</div>
           <div className="text">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias,
-            incidunt. Esse suscipit nostrum recusandae adipisci accusamus
-            repellendus ipsum amet quo incidunt sit nesciunt, dolorum temporibus
-            corporis soluta magnam dolorem libero sed perferendis sint,
-            voluptatem at ea quaerat enim? Nemo dolore nam deleniti recusandae
-            eius ducimus asperiores animi aperiam earum, ullam quidem sed eaque
-            illo cum perferendis ipsa voluptatum est inventore iusto veritatis
-            in laudantium voluptatem? Maxime reprehenderit excepturi recusandae
-            ipsum, nesciunt sunt? Sit asperiores eos laudantium unde
-            consequuntur vero facere minima sapiente? Voluptas recusandae minima
-            quis iste, hic et maiores. Velit sapiente quibusdam distinctio
-            veniam, aut adipisci placeat ea blanditiis.
+            {(selected_analysis_data && selected_analysis_data.description) ||
+              "No description available for this analysis. Waiting for AI generation..."}
           </div>
         </div>
 
-        {isReady ? (
+        {isReady &&
+        selected_analysis_data != null &&
+        selected_analysis_data.dataset != null &&
+        selected_analysis_data.dataset.length > 0 ? (
           <div
             className={
               showChatTable ? "dataset-area show-chat-table" : "dataset-area"
@@ -85,43 +166,33 @@ function AnalysisOverview() {
               <table className="dataset">
                 <thead>
                   <tr>
-                    <th>DATASET</th>
-                    <th>Descrizione</th>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Part Number</th>
+                    <th>Site</th>
                     <th>Categoria</th>
                     <th>Sottocategoria</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
-                    <th>Altro Dato</th>
+                    <th>Descrizione</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({ length: 20 }, (_, i) => (
-                    <tr key={i}>
-                      <td>888-999-0{i}</td>
+                  {selected_analysis_data.dataset.map((record) => (
+                    <tr key={record.id}>
+                      <td>{record.id}</td>
+                      <td>{record.date}</td>
                       <td>
-                        <div className="description">
-                          Descrizione esempio {i}. Lorem ipsum dolor sit, amet
-                          consectetur adipisicing elit. Pariatur, ad excepturi!
-                          Quos nisi deleniti totam facere, autem reiciendis in
-                          excepturi odit perspiciatis unde. Tenetur, doloribus
-                          repellat. Unde voluptatibus dolorem ipsa.
-                        </div>
+                        {
+                          currentData.part_numbers[
+                            Math.floor(
+                              Math.random() * currentData.part_numbers.length
+                            )
+                          ]
+                        }
                       </td>
-                      <td>Categoria {i % 5}</td>
-                      <td>Sottocategoria {i % 3}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
-                      <td>Dato {i}</td>
+                      <td>{currentData.site}</td>
+                      <td>{record.category}</td>
+                      <td>{record.sub_category}</td>
+                      <td>{record.description}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -136,16 +207,15 @@ function AnalysisOverview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.from({ length: 50 }, (_, index) => (
-                    <tr key={index} onClick={() => open_chat(1100 + index)}>
-                      <td>11{index}</td>
-                      <td>
-                        12/05/2024 <br /> 14:30
-                      </td>
-                      <td>{Math.round(Math.random() * 20)}</td>
-                      <td>{Math.round(Math.random() * 20)}</td>
-                    </tr>
-                  ))}
+                  {loadedChatsHistory != null &&
+                    loadedChatsHistory.map((chat) => (
+                      <tr key={chat.id} onClick={() => open_chat(chat.id)}>
+                        <td>{chat.id}</td>
+                        <td>{chat.created_at}</td>
+                        <td>{chat.total_messages}</td>
+                        <td>{chat.report_messages}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -153,14 +223,16 @@ function AnalysisOverview() {
               {!showChatTable && (
                 <button className="secondary small">Filtra Dati</button>
               )}
-              <button
-                className="secondary small"
-                onClick={() => setShowChatTable((state) => !state)}
-              >
-                {showChatTable
-                  ? "Mostra Dataset Esteso"
-                  : "Mostra Storico Chat"}
-              </button>
+              {loadedChatsHistory && loadedChatsHistory.length > 0 && (
+                <button
+                  className="secondary small"
+                  onClick={() => setShowChatTable((state) => !state)}
+                >
+                  {showChatTable
+                    ? "Mostra Dataset Esteso"
+                    : "Mostra Storico Chat"}
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -171,9 +243,14 @@ function AnalysisOverview() {
         <div className="actions-buttons">
           <button
             className="primary no-wrap"
-            onClick={() => navigate(`/analysis/${analysisId}/edit`)}
+            onClick={() =>
+              createExcelFileForDataset(
+                selected_analysis_data.dataset,
+                analysisId
+              )
+            }
           >
-            Scarica il Dataset
+            Download Dataset
           </button>
           <button
             className="primary no-wrap"
@@ -181,10 +258,7 @@ function AnalysisOverview() {
           >
             Genera QA Matrix
           </button>
-          <button
-            className="primary no-wrap"
-            onClick={() => navigate(`/analysis/${analysisId}/delete`)}
-          >
+          <button className="primary no-wrap" onClick={openNewChat}>
             Conversational BI
           </button>
         </div>

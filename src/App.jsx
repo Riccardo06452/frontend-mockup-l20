@@ -7,8 +7,15 @@ import "./buttons.scss";
 import "./tables.scss";
 import AnalysisOverview from "./routes/analisis/_analisisId/overview";
 import ChatPage from "./routes/chat/_cahtId/chat";
+import useChatDashboardStore from "./stores/useChatDashboardStore";
+import { useEffect } from "react";
 
 function App() {
+  const { loadAllChatsHistory } = useChatDashboardStore();
+  useEffect(() => {
+    loadAllChatsHistory();
+  }, [loadAllChatsHistory]);
+
   return (
     <BrowserRouter>
       <Routes>

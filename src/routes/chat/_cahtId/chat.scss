@@ -16,6 +16,30 @@
   box-shadow: $box_shadow_common;
   display: flex;
 
+  .overlay {
+    background-color: $overlay_bg_color;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+
+    p {
+      position: absolute;
+      top: 1rem;
+      left: 50%;
+      width: 90%;
+      box-shadow: $box_shadow_common;
+      transform: translateX(-50%);
+      color: $title_color;
+      font-size: $title_font_size;
+      background-color: $color_primary_leonardo_white;
+      border-radius: $global_border_radius;
+      padding: $padding_small $padding_medium;
+    }
+  }
+
   .settings-toggle {
     position: absolute;
     top: $padding_medium;
@@ -33,6 +57,10 @@
     overflow-y: auto;
     position: relative;
 
+    .ref-point {
+      margin-bottom: $padding_large;
+    }
+
     .settings-panel {
       height: 100%;
       width: 100%;
@@ -49,38 +77,58 @@
         padding: $padding_medium;
         gap: $padding_medium;
         overflow: hidden;
+
+        .split-view {
+          display: flex;
+          gap: $padding_small;
+          margin-bottom: $padding_small;
+          overflow: hidden;
+          flex-grow: 1;
+          width: 100%;
+
+          .side {
+            flex: 1;
+            flex-shrink: 0;
+            width: 50%;
+            text-align: center;
+            padding: $padding_small;
+            border: $overview_thick_border;
+            border-radius: $global_border_radius;
+            cursor: pointer;
+            background-color: $color_bg_sidebar_links_hover;
+
+            &.active {
+              background-color: $color_bg_sidebar_links_selected;
+              color: $color_primary_leonardo_white;
+            }
+
+            &.form-section {
+              display: flex;
+              flex-direction: column;
+
+              label {
+                text-align: left;
+                margin-bottom: $padding_small;
+                font-size: $input_font_size;
+                &:not(:first-child) {
+                  margin-top: $padding_large;
+                }
+              }
+              input,
+              select {
+                font-size: $input_font_size;
+                padding: $padding_small;
+              }
+            }
+          }
+        }
+
         &.saved-prompts-area {
           display: flex;
           flex-direction: column;
           align-items: center;
           overflow: hidden;
           width: 100%;
-
-          .split-view {
-            display: flex;
-            gap: $padding_small;
-            margin-bottom: $padding_small;
-            overflow: hidden;
-            flex-grow: 1;
-            width: 100%;
-
-            .side {
-              flex: 1;
-              flex-shrink: 0;
-              width: 50%;
-              text-align: center;
-              padding: $padding_small;
-              border: $overview_thick_border;
-              border-radius: $global_border_radius;
-              cursor: pointer;
-              background-color: $color_bg_sidebar_links_hover;
-
-              &.active {
-                background-color: $color_bg_sidebar_links_selected;
-                color: $color_primary_leonardo_white;
-              }
-            }
-          }
 
           .scrollable-table {
             overflow: auto;
@@ -121,29 +169,6 @@
 
               .buttons-area {
                 left: 0;
-              }
-            }
-          }
-        }
-
-        &.prompt-area {
-          .split-view {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            gap: $padding_small;
-            justify-content: space-between;
-
-            & > div:last-child {
-              background-color: $color_bg_sidebar_links_selected;
-              border-radius: $global_border_radius;
-              padding: $padding_small;
-            }
-
-            .form-section {
-              padding: $padding_small;
-              & > div {
-                margin-bottom: $padding_medium;
               }
             }
           }

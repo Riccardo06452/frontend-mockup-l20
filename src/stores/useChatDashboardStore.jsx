@@ -16,6 +16,8 @@ const useChatDashboardStore = create((set, get) => ({
 
   loadedSavedPromptId: null,
 
+  sendGroupMessageInProgress: false,
+
   setSendMessageInProgress: (inProgress) =>
     set({ sendMessageInProgress: inProgress }),
 
@@ -96,15 +98,83 @@ const useChatDashboardStore = create((set, get) => ({
           const answerMessage =
             "This is a simulated response from the AI. Any data processing results would appear here.";
           set((state) => {
+            const hasChartData = Math.random() > 0.2;
+            if (state.currentChatMessages == 0) {
+              const localStorageChat = localStorage.getItem(
+                "fake_chat_" + state.current_chat_id
+              );
+              if (localStorageChat) {
+                state.currentChatMessages = JSON.parse(localStorageChat);
+              }
+            }
+            const newCurrentChatMessages = [
+              ...state.currentChatMessages,
+              {
+                sender: "bot",
+                content: answerMessage,
+                addedToReport: false,
+                data: hasChartData
+                  ? [
+                      {
+                        id: "category_a",
+                        label: "Category A",
+                        value: Math.floor(Math.random() * 100) + 10,
+                      },
+                      {
+                        id: "category_b",
+                        label: "Category B",
+                        value: Math.floor(Math.random() * 100) + 10,
+                      },
+                      {
+                        id: "category_c",
+                        label: "Category C",
+                        value: Math.floor(Math.random() * 100) + 10,
+                      },
+                      {
+                        id: "category_d",
+                        label: "Category D",
+                        value: Math.floor(Math.random() * 100) + 10,
+                      },
+                      {
+                        id: "category_e",
+                        label: "Category E",
+                        value: Math.floor(Math.random() * 100) + 10,
+                      },
+                      {
+                        id: "category_f",
+                        label: "Category F",
+                        value: Math.floor(Math.random() * 100) + 10,
+                      },
+                    ]
+                  : [],
+                chart_type: hasChartData ? "pie" : null,
+              },
+            ];
+            localStorage.setItem(
+              "fake_chat_" + state.current_chat_id,
+              JSON.stringify(newCurrentChatMessages)
+            );
+            const chats_history = JSON.parse(
+              localStorage.getItem("fake_chats_history")
+            );
+            const chats_history_index = chats_history.findIndex(
+              (chat) => parseInt(chat.id) === parseInt(state.current_chat_id)
+            );
+            if (chats_history_index !== -1) {
+              console.log("Updating chat history message counts.");
+              chats_history[chats_history_index].total_messages += 2;
+              localStorage.setItem(
+                "fake_chats_history",
+                JSON.stringify(chats_history)
+              );
+            }
+            localStorage.setItem(
+              "fake_chats_history",
+              JSON.stringify(chats_history)
+            );
+
             return {
-              currentChatMessages: [
-                ...state.currentChatMessages,
-                {
-                  sender: "bot",
-                  content: answerMessage,
-                  addedToReport: false,
-                },
-              ],
+              currentChatMessages: newCurrentChatMessages,
             };
           });
           set({ sendMessageInProgress: false });
@@ -119,18 +189,45 @@ const useChatDashboardStore = create((set, get) => ({
         set({ loadedChatsHistory: response.data.chats });
       })
       .finally(() => {
-        set({
-          loadedChatsHistory: Array.from({ length: 20 }, (_, index) => ({
-            id: 1100 + index,
-            created_at: `12/05/2024 14:${30 + index}`,
-            total_messages: Math.round(Math.random() * 20),
-            report_messages: Math.round(Math.random() * 20),
-            analysis_id: Math.round(Math.random() * 10000000),
-            analysis_range_date: "01/05/2024 - 10/05/2024",
-            analysis_description:
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-          })),
-        });
+        const localFakeChats = localStorage.getItem("fake_chats_history");
+        if (localFakeChats) {
+          set({ loadedChatsHistory: JSON.parse(localFakeChats) });
+        } else {
+          set({
+            loadedChatsHistory: [
+              {
+                id: "1100",
+                created_at: `12/05/2024 14:${30}`,
+                total_messages: Math.round(Math.random() * 20),
+                report_messages: Math.round(Math.random() * 20),
+                analysis_id: 1,
+                analysis_range_date: "01/05/2024 - 10/05/2024",
+                analysis_description:
+                  "The description of the analysis associated with this chat generated by the AI.",
+              },
+            ],
+          });
+          localStorage.setItem(
+            "fake_chats_history",
+            JSON.stringify(get().loadedChatsHistory)
+          );
+          localStorage.setItem(
+            "fake_chat_1100",
+            JSON.stringify([
+              {
+                sender: "user",
+                content: "Simulated user message.",
+                addedToPromptGroup: false,
+              },
+              {
+                sender: "bot",
+                content:
+                  "This is a simulated response from the AI. Any data processing results would appear here.",
+                addedToReport: false,
+              },
+            ])
+          );
+        }
       });
   },
 
@@ -142,21 +239,45 @@ const useChatDashboardStore = create((set, get) => ({
         set({ currentChatMessages: response.data.messages });
       })
       .finally(() => {
+        const localStorageChat = localStorage.getItem("fake_chat_" + chatId);
+        if (localStorageChat) {
+          set({
+            currentChatMessages: JSON.parse(localStorageChat),
+            current_chat_id: chatId,
+          });
+          return;
+        }
         set({
-          currentChatMessages: [
-            {
-              sender: "user",
-              content: "Simulated user message.",
-              addedToPromptGroup: false,
-            },
-            {
-              sender: "bot",
-              content:
-                "This is a simulated response from the AI. Any data processing results would appear here.",
-              addedToReport: false,
-            },
-          ],
+          currentChatMessages: [],
+          current_chat_id: chatId,
         });
+        const chats_history = JSON.parse(
+          localStorage.getItem("fake_chats_history")
+        );
+        let chat_entry = null;
+        if (chats_history) {
+          chat_entry = chats_history.find((chat) => chat.id == chatId);
+        }
+        if (!chat_entry) {
+          let analysisId = Math.round(Math.random() * 10000000);
+          if (chatId.includes("_")) {
+            analysisId = chatId.split("_")[0];
+          }
+          chats_history.push({
+            id: chatId,
+            created_at: `12/05/2024 14:${30}`,
+            total_messages: 0,
+            report_messages: 0,
+            analysis_id: analysisId,
+            analysis_range_date: "01/05/2024 - 10/05/2024",
+            analysis_description:
+              "The description of the analysis associated with this chat generated by the AI.",
+          });
+          localStorage.setItem(
+            "fake_chats_history",
+            JSON.stringify(chats_history)
+          );
+        }
       });
   },
 
@@ -167,34 +288,46 @@ const useChatDashboardStore = create((set, get) => ({
         set({ savedPromptsList: response.data.prompts });
       })
       .finally(() => {
+        const localStoragePrompts = localStorage.getItem("fake_saved_prompts");
+        if (localStoragePrompts) {
+          console.log("Loading saved prompts from localStorage.");
+
+          set({
+            savedPromptsList: JSON.parse(localStoragePrompts).sort(
+              (a, b) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            ),
+          });
+          return;
+        }
         set({
           savedPromptsList: [
             {
-              id: 1,
+              id: 1476,
               name: "Data Cleaning Prompt",
               description: "Prompt for cleaning datasets.",
-              created_by: "admin",
+              created_by: "Jhon Doe Jr.",
               status: "public",
-              created_at: "01/04/2024",
-            },
-            {
-              id: 2,
-              name: "Data Analysis Prompt",
-              description: "Prompt for analyzing data trends.",
-              created_by: "user1",
-              status: "private",
-              created_at: "15/04/2024",
-            },
-            {
-              id: 3,
-              name: "Visualization Prompt",
-              description: "Prompt for generating data visualizations.",
-              created_by: "user2",
-              status: "public",
-              created_at: "20/04/2024",
+              created_at: "2025-10-15",
             },
           ],
+
+          loadedSavedPromptMessages: [
+            "Give me a list of all the categories with more then 5% of data points.",
+            "Make a graph showing the distribution of data points across categories.",
+            "Identify any outliers in the dataset and suggest how to handle them.",
+          ],
+          loadedSavedPromptId: 1476,
         });
+        localStorage.setItem(
+          "fake_saved_prompts",
+          JSON.stringify(get().savedPromptsList)
+        );
+        localStorage.setItem(
+          "fake_saved_prompt_1476",
+          JSON.stringify(get().loadedSavedPromptMessages)
+        );
       });
   },
 
@@ -208,20 +341,98 @@ const useChatDashboardStore = create((set, get) => ({
         });
       })
       .finally(() => {
-        set({
-          loadedSavedPromptMessages: [
-            Math.random() > 0.5
-              ? "Get all the data in a clean format."
-              : "Provide a summary of the dataset.",
-            Math.random() > 0.5
-              ? "Analyze the trends over the last year."
-              : "Identify any outliers in the dataset.",
-            Math.random() > 0.5
-              ? "Generate visualizations for the key metrics."
-              : "Generate a summary report of the findings.",
-          ],
-          loadedSavedPromptId: promptId,
-        });
+        const localSavedPrompt = localStorage.getItem(
+          "fake_saved_prompt_" + promptId
+        );
+        if (localSavedPrompt) {
+          set({
+            loadedSavedPromptMessages: JSON.parse(localSavedPrompt),
+            loadedSavedPromptId: promptId,
+          });
+          return;
+        }
+      });
+  },
+
+  useSavedPromptInCurrentChat: async () => {
+    set({
+      sendGroupMessageInProgress: true,
+    });
+    const promptId = get().loadedSavedPromptId;
+    if (promptId == null) return;
+
+    const messagesToAdd = get().loadedSavedPromptMessages;
+
+    for (const msg of messagesToAdd) {
+      get().sendMessageToProcess(msg);
+      while (get().sendMessageInProgress) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+    }
+    set({
+      sendGroupMessageInProgress: false,
+    });
+  },
+
+  loadChatsHistoryByAnalysisId: async (analysisId) => {
+    axios
+      .get(`/api/chats/history?analysis_id=${analysisId}`)
+      .then((response) => {
+        set({ loadedChatsHistory: response.data.chats });
+      })
+      .finally(() => {
+        const allChats = JSON.parse(localStorage.getItem("fake_chats_history"));
+        const filteredChats = allChats.filter(
+          (chat) => chat.analysis_id == analysisId
+        );
+        set({ loadedChatsHistory: filteredChats });
+      });
+  },
+
+  saveNewPromptGroup: async (name, description, status) => {
+    axios
+      .post("/api/prompts/save", {
+        name,
+        description,
+        messages: get()
+          .currentChatMessages.filter(
+            (msg) => msg.addedToPromptGroup && msg.sender === "user"
+          )
+          .map((msg) => msg.content),
+        status,
+        created_by: "Jhon Doe",
+        created_at: new Date().toISOString(),
+      })
+      .then((response) => {
+        console.log("Prompt group saved response:", response.data);
+      })
+      .finally(() => {
+        const newPrompt = {
+          id: Math.floor(Math.random() * 100000),
+          name,
+          description,
+          created_by: "current_user",
+          status: "private",
+          created_at: new Date().toISOString().split("T")[0],
+        };
+
+        set((state) => ({
+          savedPromptsList: [...state.savedPromptsList, newPrompt],
+        }));
+        localStorage.setItem(
+          "fake_saved_prompts",
+          JSON.stringify(get().savedPromptsList)
+        );
+        localStorage.setItem(
+          "fake_saved_prompt_" + newPrompt.id,
+          JSON.stringify(
+            get()
+              .currentChatMessages.filter(
+                (msg) => msg.addedToPromptGroup && msg.sender === "user"
+              )
+              .map((msg) => msg.content)
+          )
+        );
       });
   },
 }));

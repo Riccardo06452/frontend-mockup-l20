@@ -1,12 +1,16 @@
 import React, { useEffect } from "react";
 import "./chat.scss";
+import { toPng } from "html-to-image";
 import { useParams } from "react-router-dom";
 import useChatDashboardStore from "../../../stores/useChatDashboardStore";
+import PieChartComponent from "../../../components/charts/PieChartComponent";
+import pptxgen from "pptxgenjs";
 
 function ChatPage() {
   const { chatId } = useParams();
   console.log("Chat ID:", chatId);
   const [userInput, setUserInput] = React.useState("");
+  const chatEndRef = React.useRef(null);
 
   const {
     loadMessagesByChatId,
@@ -19,12 +23,28 @@ function ChatPage() {
     savedPromptsList,
     loadSavedPromptsMessages,
     loadedSavedPromptMessages,
+    loadedSavedPromptId,
+    useSavedPromptInCurrentChat,
+    sendGroupMessageInProgress,
+    saveNewPromptGroup,
   } = useChatDashboardStore();
   const [showSettings, setShowSettings] = React.useState("");
+  const [promptsTitle, setPromptsTitle] = React.useState("");
+  const [promptsDescription, setPromptsDescription] = React.useState("");
+  const [promptsStatus, setPromptsStatus] = React.useState("private");
+
+  const charts = React.useRef({});
 
   useEffect(() => {
     loadMessagesByChatId(chatId);
-  }, [chatId, loadMessagesByChatId]);
+    loadSavedPromptsList();
+  }, [chatId, loadMessagesByChatId, loadSavedPromptsList]);
+
+  useEffect(() => {
+    if (currentChatMessages && chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [currentChatMessages, showSettings]);
 
   useEffect(() => {
     if (showSettings === "savedPrompts") {
@@ -44,8 +64,50 @@ function ChatPage() {
     }
   };
 
+  const useSavedPrompt = () => {
+    useSavedPromptInCurrentChat();
+    setShowSettings("");
+  };
+
+  const downloadReport = async () => {
+    console.log("Downloading report...");
+    console.log(charts.current);
+
+    const pptx = new pptxgen();
+
+    for (const [index, message] of currentChatMessages.entries()) {
+      if (message.addedToReport) {
+        const slide = pptx.addSlide();
+        slide.addText(message.content, {
+          x: 0.5,
+          y: 0.5,
+          w: 8,
+          h: 1,
+          fontSize: 14,
+        });
+
+        if (message.sender === "bot" && message.chart_type != null) {
+          console.log("Adding chart to slide...", index, charts.current[index]);
+
+          const img = await toPng(charts.current[index]);
+          slide.addImage({ data: img, x: 1, y: 1.5, w: 6, h: 4 });
+        }
+      }
+    }
+
+    await pptx.writeFile({ fileName: `Chat_Report_${chatId}.pptx` });
+  };
+
   return (
     <div className="chat-page-container">
+      {sendGroupMessageInProgress && (
+        <div className="overlay">
+          <p>
+            Sending saved prompt messages to chat, please wait. Do not close
+            this window or refresh the page.
+          </p>
+        </div>
+      )}
       <div className="chat-area">
         {showSettings != "" ? (
           <div className="settings-panel">
@@ -58,6 +120,18 @@ function ChatPage() {
                       {message.sender === "bot" && message.addedToReport && (
                         <div className="message report" key={index}>
                           {message.content}
+                          {message.sender === "bot" &&
+                            message.chart_type != null && (
+                              <>
+                                {message.chart_type === "pie" && (
+                                  <div
+                                    ref={(el) => (charts.current[index] = el)}
+                                  >
+                                    <PieChartComponent data={message.data} />
+                                  </div>
+                                )}
+                              </>
+                            )}
                           <div className="buttons-area">
                             <button
                               className="small bot-color "
@@ -76,6 +150,7 @@ function ChatPage() {
                   disabled={
                     !currentChatMessages.some((msg) => msg.addedToReport)
                   }
+                  onClick={downloadReport}
                 >
                   Crea Report
                 </button>
@@ -84,30 +159,40 @@ function ChatPage() {
               <div className="prompt-area">
                 <h3>Prompt messages</h3>
                 <div className="split-view">
-                  <div className="form-section">
-                    <div>
-                      <label for="title">Prompt Title</label>
-                      <input id="title" type="text" />
-                    </div>
-                    <div>
-                      <label for="description">Prompt Description</label>
-                      <input id="description" type="text" />
-                    </div>
-                    <div>
-                      <label for="status">Visibility</label>
-                      <select name="status" id="status">
-                        <option value="private" selected>
-                          Private
-                        </option>
-                        <option value="public">Public</option>
-                      </select>
-                    </div>
+                  <div className="side form-section">
+                    <label htmlFor="title">Prompt Title*</label>
+                    <input
+                      id="title"
+                      type="text"
+                      value={promptsTitle}
+                      onChange={(e) => setPromptsTitle(e.target.value)}
+                    />
+                    <label htmlFor="description">Prompt Description*</label>
+                    <input
+                      id="description"
+                      type="text"
+                      value={promptsDescription}
+                      onChange={(e) => setPromptsDescription(e.target.value)}
+                    />
+                    <label htmlFor="status">Visibility</label>
+                    <select
+                      name="status"
+                      id="status"
+                      value={promptsStatus}
+                      onChange={(e) => setPromptsStatus(e.target.value)}
+                    >
+                      <option value="private">Private</option>
+                      <option value="public">Public</option>
+                    </select>
                   </div>
-                  <div className="scrollable-area">
-                    {currentChatMessages.map((message, index) => (
-                      <>
-                        {message.sender === "user" &&
-                          message.addedToPromptGroup && (
+                  <div className="side">
+                    <div className="scrollable-area">
+                      {currentChatMessages.map((message, index) => {
+                        if (
+                          message.sender === "user" &&
+                          message.addedToPromptGroup
+                        ) {
+                          return (
                             <div className="message bot" key={index}>
                               {message.content}
                               <div className="buttons-area">
@@ -121,18 +206,34 @@ function ChatPage() {
                                 </button>
                               </div>
                             </div>
-                          )}
-                      </>
-                    ))}
+                          );
+                        }
+                      })}
+                    </div>
                   </div>
                 </div>
                 <button
                   className="secondary full-width"
                   disabled={
-                    !currentChatMessages.some((msg) => msg.addedToPromptGroup)
+                    !currentChatMessages.some(
+                      (msg) => msg.addedToPromptGroup
+                    ) ||
+                    promptsTitle.trim() === "" ||
+                    promptsDescription.trim() === ""
                   }
+                  onClick={() => {
+                    saveNewPromptGroup(
+                      promptsTitle,
+                      promptsDescription,
+                      promptsStatus
+                    );
+                    setPromptsTitle("");
+                    setPromptsDescription("");
+                    setPromptsStatus("private");
+                    setShowSettings("savedPrompts");
+                  }}
                 >
-                  Salva gruppo di prompt
+                  Save prompt group
                 </button>
               </div>
             ) : showSettings === "savedPrompts" ? (
@@ -159,6 +260,11 @@ function ChatPage() {
                                 onClick={() =>
                                   loadSavedPromptsMessages(prompt.id)
                                 }
+                                className={
+                                  loadedSavedPromptId === prompt.id
+                                    ? "selected"
+                                    : ""
+                                }
                               >
                                 <td>{prompt.name}</td>
                                 <td>{prompt.created_by}</td>
@@ -182,7 +288,16 @@ function ChatPage() {
                     </div>
                   </div>
                 </div>
-                <button className="secondary full-width">Carica Prompt</button>
+                <button
+                  className="secondary full-width"
+                  onClick={useSavedPrompt}
+                  disabled={
+                    loadedSavedPromptMessages == null ||
+                    loadedSavedPromptMessages.length === 0
+                  }
+                >
+                  Load Selected Prompt
+                </button>
               </div>
             ) : null}
           </div>
@@ -193,6 +308,13 @@ function ChatPage() {
                 {currentChatMessages.map((message, index) => (
                   <div key={index} className={`message ${message.sender}`}>
                     {message.content}
+                    {message.sender === "bot" && message.chart_type != null && (
+                      <>
+                        {message.chart_type === "pie" && (
+                          <PieChartComponent data={message.data} />
+                        )}
+                      </>
+                    )}
                     <div className="buttons-area">
                       {message.sender === "user" && (
                         <button
@@ -221,6 +343,7 @@ function ChatPage() {
             )}
           </>
         )}
+        <div ref={chatEndRef} className="ref-point" />
       </div>
       {showSettings != "" ? (
         <button
@@ -255,12 +378,20 @@ function ChatPage() {
             <button
               className="secondary"
               onClick={() => setShowSettings("report")}
+              disabled={
+                !currentChatMessages ||
+                !currentChatMessages.some((msg) => msg.addedToReport)
+              }
             >
               Show Report Groups
             </button>
             <button
               className="secondary"
               onClick={() => setShowSettings("prompt")}
+              disabled={
+                !currentChatMessages ||
+                !currentChatMessages.some((msg) => msg.addedToPromptGroup)
+              }
             >
               Show Prompt Groups
             </button>

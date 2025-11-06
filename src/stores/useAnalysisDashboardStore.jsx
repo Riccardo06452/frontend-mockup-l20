@@ -1,6 +1,10 @@
 // import { data } from "react-router-dom";
+import axios from "axios";
 import { create } from "zustand";
 // import axios from "axios";
+import ExcelJS from "exceljs";
+import { format } from "date-fns";
+import { saveAs } from "file-saver";
 
 const useAnalysisDashboardStore = create((set, get) => ({
   filters: {
@@ -14,18 +18,18 @@ const useAnalysisDashboardStore = create((set, get) => ({
   categories: {},
   description: "",
   data: [],
+  selected_analysis_id: null,
+  selected_analysis_data: null,
 
   is_filters_menu_visible: false,
   is_create_analysis_menu_visible: false,
   options: {
     site_options: [
-      { label: "Tutti i siti", value: null },
-      { label: "Sede Centrale", value: "Sede Centrale" },
+      { label: "All Sites", value: null },
       {
-        label: "Fornitore esterno XYZ Ltd.",
-        value: "Fornitore esterno XYZ Ltd.",
+        label: "OFIR",
+        value: "OFIR",
       },
-      { label: "Magazzino 3", value: "Magazzino 3" },
     ],
     part_numbers_options: [
       { label: "Tutti i PN", value: null },
@@ -223,7 +227,7 @@ const useAnalysisDashboardStore = create((set, get) => ({
             id: 1,
             created_at: "12/05/2024 14:30",
             range_date: "01/05/2024 - 10/05/2024",
-            site: "Fornitore esterno XYZ Ltd.",
+            site: "OFIR",
             part_numbers: [
               "12356",
               "78901",
@@ -250,7 +254,7 @@ const useAnalysisDashboardStore = create((set, get) => ({
             id: 12356,
             created_at: "12/05/2024 14:30",
             range_date: "01/05/2024 - 10/05/2024",
-            site: "Fornitore esterno XYZ Ltd.",
+            site: "OFIR",
             part_numbers: [
               "12356",
               "78901",
@@ -380,6 +384,131 @@ const useAnalysisDashboardStore = create((set, get) => ({
     });
     set({ is_create_analysis_menu_visible: false });
     return new_data.id;
+  },
+
+  fetchDataFromAnalysisId: async (analysisId) => {
+    set({ selected_analysis_id: analysisId });
+    axios
+      .get("/api/analysis/" + analysisId)
+      .then((response) => {
+        set({ selected_analysis_data: response.data });
+      })
+      .catch((e) => {
+        console.log("Error fetching analysis data for ID:", analysisId, e);
+      })
+      .then(() => {
+        console.log("Finished fetching analysis data for ID:", analysisId);
+        const localStorageFakeAnalysis = localStorage.getItem(
+          "fakeAnalysisData_" + analysisId
+        );
+        if (localStorageFakeAnalysis) {
+          set({ selected_analysis_data: JSON.parse(localStorageFakeAnalysis) });
+        } else {
+          if (analysisId.toString().startsWith("1")) {
+            //generate fake analysis data
+            const categories = ["OLED", "DIFETTI"];
+            const selected_category = categories[Math.floor(Math.random() * 2)];
+            const sub_categories_map = {
+              OLED: ["SCHERMO GUASTO", "SOFTWARE GUASTO"],
+              DIFETTI: ["ESTETICI", "FUNZIONALI"],
+            };
+            const fakeAnalysisData = {
+              description:
+                "Analisi dettagliata per l'ID generata dall intelligenza artificiale" +
+                analysisId,
+              dataset: Array.from({ length: 10 }, (_, i) => ({
+                id: i + 1,
+                date: `2024-05-${(i + 1).toString().padStart(2, "0")}`,
+                site: "Fornitore esterno XYZ Ltd.",
+                part_number: Math.floor(
+                  10000 + Math.random() * 90000
+                ).toString(),
+                nc_category: ["ingegneristica", "produzione", "fornitore"].sort(
+                  () => Math.random() - 0.5
+                )[0],
+                category: selected_category,
+                sub_category:
+                  sub_categories_map[selected_category][
+                    Math.floor(Math.random() * 2)
+                  ],
+                description: "Descrizione del record " + (i + 1),
+              })),
+            };
+            localStorage.setItem(
+              "fakeAnalysisData_" + analysisId,
+              JSON.stringify(fakeAnalysisData)
+            );
+            set({ selected_analysis_data: fakeAnalysisData });
+          }
+        }
+      });
+  },
+
+  createExcelFileForDataset: async (rows, analysisId) => {
+    const workbook = new ExcelJS.Workbook();
+
+    const sheet = workbook.addWorksheet("Dataset Analysis");
+
+    const columns = [
+      { name: "ID", key: "id" },
+      { name: "Date", key: "date" },
+      { name: "Part Number", key: "part_number" },
+      { name: "Site", key: "site" },
+      { name: "NC Category", key: "nc_category" },
+      { name: "Category", key: "category" },
+      { name: "Sub-Category", key: "sub_category" },
+      { name: "Description", key: "description" },
+    ];
+
+    const formatted_rows = rows.map((row) => [
+      row.id,
+      row.date,
+      row.part_number,
+      row.site,
+      row.nc_category,
+      row.category,
+      row.sub_category,
+      row.description,
+    ]);
+
+    console.log(formatted_rows);
+
+    sheet.addTable({
+      name: "ReportTable",
+      ref: "A1", // posizione d’inizio
+      headerRow: true,
+      style: {
+        theme: "TableStyleMedium9", // puoi cambiare tema
+        showRowStripes: true,
+      },
+      columns,
+      rows: formatted_rows,
+    });
+
+    sheet.columns.forEach((column) => {
+      let maxLength = 10; // larghezza minima
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        const cellValue = cell.value ? cell.value.toString() : "";
+        maxLength = Math.max(maxLength, cellValue.length + 2); // +2 padding
+      });
+      column.width = maxLength;
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // Usa FileSaver per scaricare
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    console.log(analysisId);
+
+    const fileName = `analysis_${analysisId.toString()}_dataset_${format(
+      new Date(),
+      "HH_mm__dd_MM_yyyy"
+    )}.xlsx`;
+
+    saveAs(blob, fileName);
   },
 }));
 

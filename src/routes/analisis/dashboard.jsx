@@ -23,7 +23,7 @@ function AnalysisDashboard() {
         className="primary big new-analysis"
         onClick={toggleCreateAnalysisMenu}
       >
-        + Nuova Analisi
+        + New Analysis
       </button>
 
       <AnalysisFiltersMenu />
@@ -38,17 +38,16 @@ function AnalysisDashboard() {
           <table>
             <thead>
               <tr>
-                <th>id</th>
-                <th>creato il</th>
-                <th>range date</th>
-                <th>sito</th>
+                <th>ID</th>
+                <th>Created At</th>
+                <th>Dates Range</th>
+                <th>Site</th>
                 <th>PN</th>
-                <th>Categoria NC</th>
-                <th>Tipologia</th>
-                <th>Stato</th>
-                <th>Num Record</th>
-                <th>Descrizione</th>
-                <th>Num Categorie</th>
+                <th>NC Category</th>
+                <th>Status</th>
+                <th>Num Records</th>
+                <th>Description</th>
+                <th>Num Categories</th>
               </tr>
             </thead>
             <tbody>
@@ -67,7 +66,6 @@ function AnalysisDashboard() {
                       : "All"}
                   </td>
                   <td>{analysis.nc_category}</td>
-                  <td>{analysis.nc_category_options}</td>
                   <td>{analysis.status}</td>
                   <td>{analysis.num_records}</td>
                   <td>
