@@ -20,19 +20,22 @@ const useAnalysisDashboardStore = create((set, get) => ({
   data: [],
   selected_analysis_id: null,
   selected_analysis_data: null,
+  selected_analysis_categories: [],
 
   is_filters_menu_visible: false,
   is_create_analysis_menu_visible: false,
   options: {
     site_options: [
-      { label: "All Sites", value: null },
       {
         label: "OFIR",
         value: "OFIR",
       },
+      {
+        label: "OMON",
+        value: "OMON",
+      },
     ],
     part_numbers_options: [
-      { label: "Tutti i PN", value: null },
       { label: "12356", value: "12356" },
       { label: "78901", value: "78901" },
       { label: "45623", value: "45623" },
@@ -52,9 +55,9 @@ const useAnalysisDashboardStore = create((set, get) => ({
     ],
     status_options: [
       { label: "Tutti gli stati", value: null },
-      { label: "Aperto", value: "aperto" },
+      { label: "Aperto", value: "Aperto" },
       { label: "In lavorazione", value: "in lavorazione" },
-      { label: "Chiuso", value: "chiuso" },
+      { label: "Chiuso", value: "Chiuso" },
     ],
   },
 
@@ -74,6 +77,7 @@ const useAnalysisDashboardStore = create((set, get) => ({
       is_create_analysis_menu_visible: !state.is_create_analysis_menu_visible,
       is_filters_menu_visible: false,
     })),
+
   toggleCategorySelected: (categoryKey) => {
     set((state) => {
       if (categoryKey in state.categories) {
@@ -84,77 +88,12 @@ const useAnalysisDashboardStore = create((set, get) => ({
             [categoryKey]: {
               ...state.categories[categoryKey],
               selected: !state.categories[categoryKey].selected,
-              subCategories: state.categories[categoryKey].subCategories.map(
-                (subCategory) => ({
-                  ...subCategory,
-                  selected: !state.categories[categoryKey].selected,
-                })
-              ),
             },
           },
         };
       } else {
         console.warn(
           `Attempted to toggle unknown category key: ${categoryKey}`
-        );
-        return state;
-      }
-    });
-  },
-
-  toggleSubCategorySelected: (categoryKey, subCategoryIndex) => {
-    set((state) => {
-      if (
-        categoryKey in state.categories &&
-        subCategoryIndex >= 0 &&
-        subCategoryIndex < state.categories[categoryKey].subCategories.length
-      ) {
-        const new_sub_category = state.categories[
-          categoryKey
-        ].subCategories.map((subCat, index) => {
-          if (subCategoryIndex === index) {
-            return {
-              ...subCat,
-              selected: !subCat.selected,
-            };
-          }
-          return subCat;
-        });
-        console.log("Toggling sub-category:", categoryKey, subCategoryIndex);
-        console.log("new sub-categories:", new_sub_category);
-
-        return {
-          categories: {
-            ...state.categories,
-            [categoryKey]: {
-              ...state.categories[categoryKey],
-              subCategories: new_sub_category,
-              selected: new_sub_category.some((subCat) => subCat.selected),
-            },
-          },
-        };
-      } else {
-        return state;
-      }
-    });
-  },
-
-  toggleCategoryExpanded: (categoryKey) => {
-    set((state) => {
-      if (categoryKey in state.categories) {
-        console.log("Toggling expansion for category:", categoryKey);
-        return {
-          categories: {
-            ...state.categories,
-            [categoryKey]: {
-              ...state.categories[categoryKey],
-              expanded: !state.categories[categoryKey].expanded,
-            },
-          },
-        };
-      } else {
-        console.warn(
-          `Attempted to toggle expansion for unknown category key: ${categoryKey}`
         );
         return state;
       }
@@ -190,25 +129,10 @@ const useAnalysisDashboardStore = create((set, get) => ({
     console.log("Fetching categories for user:", userID);
     // const response = await axios.get("/api/categories", { params: { userID} });
     const response = {};
-    for (let index = 0; index < 100; index++) {
+    for (let index = 0; index < 30; index++) {
       response[`category_${index}`] = {
         title: `Category ${index}`,
         selected: false,
-        expanded: false,
-        subCategories: Array.from([
-          {
-            title: `Sub-category ${index}-A`,
-            selected: false,
-          },
-          {
-            title: `Sub-category ${index}-B`,
-            selected: false,
-          },
-          {
-            title: `Sub-category ${index}-C`,
-            selected: false,
-          },
-        ]),
       };
     }
     set({ categories: response });
@@ -241,7 +165,8 @@ const useAnalysisDashboardStore = create((set, get) => ({
             ],
             nc_category: "NC ingegneristica",
             nc_category_options: "produzione",
-            status: "Aperto",
+            data_status: "Aperto",
+            analysis_status: "Processed",
             num_records: 458,
             description: `Lorem, ipsum dolor sit amet consectetur adipisicing elit.
         Rem doloribus aliquam facilis facere! Quos eveniet facere voluptatum eaque!
@@ -268,7 +193,8 @@ const useAnalysisDashboardStore = create((set, get) => ({
             ],
             nc_category: "NC ingegneristica",
             nc_category_options: "produzione",
-            status: "Aperto",
+            data_status: "Aperto",
+            analysis_status: "Validated",
             num_records: 458,
             description: `Lorem, ipsum dolor sit amet consectetur adipisicing elit.
         Rem doloribus aliquam facilis facere! Quos eveniet facere voluptatum eaque!
@@ -332,7 +258,9 @@ const useAnalysisDashboardStore = create((set, get) => ({
       }
 
       if (filters.status != null) {
-        fakeData = fakeData.filter((item) => item.stato === filters.status);
+        fakeData = fakeData.filter(
+          (item) => item.data_status === filters.status
+        );
       }
 
       const response = {
@@ -354,18 +282,18 @@ const useAnalysisDashboardStore = create((set, get) => ({
     ) {
       return null;
     }
+    console.log("filters: ", get().filters);
 
     const new_data = {
       id: 200000 + Math.floor(Math.random() * 10000), // Random ID for demo purposes
       created_at: new Date().toLocaleString(),
       range_date: `${get().filters.date_from.toLocaleDateString()} - ${get().filters.date_to.toLocaleDateString()}`,
       site: get().filters.site || "All sites",
-      part_numbers: get().filters.part_number
-        ? [get().filters.part_number]
-        : [],
+      part_numbers: get().filters.part_number,
       nc_category: get().filters.nc_category || "All categories",
       nc_category_options: "N/A",
-      status: "Open",
+      data_status: get().filters.status || "N/A",
+      analysis_status: "Editing",
       num_records: Math.floor(Math.random() * 1000), // Random number for demo purposes
       description: get().description,
       num_categories: 0,

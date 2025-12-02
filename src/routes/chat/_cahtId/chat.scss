@@ -16,6 +16,18 @@
   box-shadow: $box_shadow_common;
   display: flex;
 
+  .scrollable-table {
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 110px !important;
+    flex-shrink: 0;
+    margin-bottom: $padding_small;
+
+    td {
+      text-wrap: nowrap;
+    }
+  }
+
   .overlay {
     background-color: $overlay_bg_color;
     position: absolute;
@@ -160,7 +172,7 @@
         &.report-area {
           .scrollable-area {
             margin: auto;
-            width: fit-content;
+            width: 95%;
             .message.report {
               background-color: $bot_message_bg_color;
               color: $bot_message_font_color;
@@ -285,4 +297,8 @@
       }
     }
   }
+}
+
+.full-width-graph {
+  width: 95% !important;
 }

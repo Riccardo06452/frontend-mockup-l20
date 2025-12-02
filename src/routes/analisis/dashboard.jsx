@@ -39,12 +39,13 @@ function AnalysisDashboard() {
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Analysis Status</th>
                 <th>Created At</th>
                 <th>Dates Range</th>
                 <th>Site</th>
                 <th>PN</th>
                 <th>NC Category</th>
-                <th>Status</th>
+                <th>Data Status</th>
                 <th>Num Records</th>
                 <th>Description</th>
                 <th>Num Categories</th>
@@ -57,16 +58,17 @@ function AnalysisDashboard() {
                   key={analysis.id}
                 >
                   <td>{analysis.id}</td>
+                  <td>{analysis.analysis_status}</td>
                   <td>{analysis.created_at}</td>
                   <td>{analysis.range_date}</td>
                   <td>{analysis.site}</td>
                   <td className="parts-number">
-                    {analysis.part_numbers.length > 0
+                    {analysis.part_numbers && analysis.part_numbers.length > 0
                       ? analysis.part_numbers.join(", ")
                       : "All"}
                   </td>
                   <td>{analysis.nc_category}</td>
-                  <td>{analysis.status}</td>
+                  <td>{analysis.data_status}</td>
                   <td>{analysis.num_records}</td>
                   <td>
                     <div className="description">{analysis.description}</div>

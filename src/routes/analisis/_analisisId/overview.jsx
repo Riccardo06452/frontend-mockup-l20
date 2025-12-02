@@ -1,51 +1,44 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./overview.scss";
-import useAnalysisDashboardStore from "../../../stores/useAnalysisDashboardStore";
+import useAnalysisOverview from "../../../stores/useAnalysisOverview";
 import useChatDashboardStore from "../../../stores/useChatDashboardStore";
+import useAnalysisDashboardStore from "../../../stores/useAnalysisDashboardStore";
+import OverviewClusterMenuPrompt from "./OverviewClusterMenuPrompt";
+import OverviewChatAlert from "./OverviewChatAlert";
+import OverviewClusterValidation from "./OverviewClusterValidation";
+import GeneralAnalysisOverviewTable from "../../../components/generalAnalysisOverviewTable/generalAnalysisOverviewTable";
+import OverviewCategoriesFilter from "./OverviewCategoriesFilter";
+import OverviewMainTables from "./OverviewMainTables";
+import OverviewDefaultCharts from "./OverviewDefaultCharts";
 
 function AnalysisOverview() {
   const { analysisId } = useParams();
   const navigate = useNavigate();
-  const [currentData, setCurrentData] = React.useState(null);
   const {
+    setMockedData,
+    setMockedCategories,
     data,
-    fetchData,
-    selected_analysis_data,
+    dataset,
+    categories,
     fetchDataFromAnalysisId,
     createExcelFileForDataset,
-  } = useAnalysisDashboardStore();
+    resetMockupedData,
+    categoriesToValidate,
+    setMockedCategoriesToValidate,
+    selectedCategoryToCluster,
+    setSelectedCategoryToCluster,
+    selectedCategory,
+  } = useAnalysisOverview();
+
+  const { data: dashboardData, fetchData } = useAnalysisDashboardStore();
   const { loadChatsHistoryByAnalysisId, loadedChatsHistory } =
     useChatDashboardStore();
 
-  const [showChatTable, setShowChatTable] = React.useState(false);
-  const [showOpenChatMenu, setShowOpenChatMenu] = React.useState(false);
-  const isReady = analysisId.startsWith("1"); // Simulazione dello stato di prontezza
-
-  useEffect(() => {
-    if (data && analysisId) {
-      if (data.length === 0) {
-        console.log("Data is empty.");
-        fetchData();
-        return;
-      }
-      console.log("Data and analysisId are available:", data, analysisId);
-
-      const filteredData = data.filter(
-        (item) => item.id.toString() === analysisId
-      );
-      if (filteredData.length > 0) {
-        setCurrentData(filteredData[0]);
-      }
-    } else {
-      console.log("Data or analysisId is not available yet.");
-    }
-  }, [fetchData, setCurrentData, analysisId, data]);
-
-  const open_chat = (id) => {
-    navigate(`/chat/${id}`);
-  };
+  const [showChatTable, setShowChatTable] = useState(false);
+  const [showOpenChatMenu, setShowOpenChatMenu] = useState(false);
+  const [showCharts, setShowCharts] = useState(false);
 
   const openNewChat = () => {
     if (loadedChatsHistory == null || loadedChatsHistory.length === 0) {
@@ -56,199 +49,161 @@ function AnalysisOverview() {
   };
 
   useEffect(() => {
-    fetchDataFromAnalysisId(analysisId);
-    loadChatsHistoryByAnalysisId(analysisId);
-  }, [analysisId, loadChatsHistoryByAnalysisId, fetchDataFromAnalysisId]);
+    const fackedCategories = [
+      "OLED SCHERMO GUASTO",
+      "OLED SOFTWARE GUASTO",
+      "DIFETTI ESTETICI",
+      "DIFETTI FUNZIONALI",
+      "DIFETTI FUNZIONALI",
+      "DIFETTI FUNZIONALI",
+      "DIFETTI FUNZIONALI",
+      "DIFETTI FUNZIONALI",
+      "DIFETTI FUNZIONALI",
+      "DIFETTI FUNZIONALI",
+    ];
+
+    if (dashboardData != null && dashboardData.length > 0) {
+      console.log("Dashboard data available:", dashboardData);
+
+      if (data != null) {
+        if (data.analysis_status == "Editing") {
+          setMockedCategoriesToValidate(
+            fackedCategories.map((cat) => {
+              return {
+                name: cat,
+                selected: true,
+              };
+            })
+          );
+        } else if (categories == null || categories.length === 0) {
+          setMockedCategories(
+            fackedCategories.map((cat) => {
+              return {
+                name: cat,
+                selected: true,
+              };
+            })
+          );
+        } else if (
+          (dataset == null || dataset.length === 0) &&
+          data.analysis_status != "Editing"
+        ) {
+          fetchDataFromAnalysisId(analysisId);
+          console.log("Dataset should be loaded now...\n", dataset);
+        } else if (
+          data.chats_history == null ||
+          data.chats_history.length === 0
+        ) {
+          console.log("Loading chats history for analysis ID:", analysisId);
+
+          // fetchDataFromAnalysisId(analysisId);
+          loadChatsHistoryByAnalysisId(analysisId);
+        }
+      } else {
+        setMockedData(
+          dashboardData.filter((analysis) => analysis.id == analysisId)[0]
+        );
+        console.log(
+          "DATA FILTERED:",
+          dashboardData.filter((analysis) => analysis.id == analysisId),
+          analysisId
+        );
+      }
+    } else {
+      console.log("Loading dashboard data...");
+      fetchData();
+    }
+  }, [
+    analysisId,
+    data,
+    dashboardData,
+    loadChatsHistoryByAnalysisId,
+    fetchDataFromAnalysisId,
+    setMockedData,
+    fetchData,
+    setMockedCategories,
+    dataset,
+    categories,
+    setMockedCategoriesToValidate,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      console.log("Cleanup overview effect");
+      resetMockupedData();
+      setShowCharts(false);
+    };
+  }, [resetMockupedData]);
 
   return (
     <div className="overview-page">
       {showOpenChatMenu && (
-        <div
-          className="overlay"
-          onClick={(e) => {
-            if (e.target.className === "overlay") {
-              setShowOpenChatMenu(false);
-            }
-          }}
-        >
-          <div className="open-chat-menu">
-            <p>
-              Attention: <b>{loadedChatsHistory.length}</b> chats already
-              existing for this analysis.
-            </p>
-            <div className="buttons-section">
-              <button
-                className="secondary no-wrap"
-                onClick={() =>
-                  navigate(
-                    `/chat/${analysisId}_` + Math.floor(Math.random() * 10000)
-                  )
-                }
-              >
-                Create New Chat
-              </button>
-              <button
-                className="secondary no-wrap"
-                onClick={() => navigate(`/chat/${loadedChatsHistory[0].id}`)}
-              >
-                Open Last Chat
-              </button>
-              <button
-                className="secondary no-wrap"
-                onClick={() => {
-                  setShowChatTable(true);
-                  setShowOpenChatMenu(false);
-                }}
-              >
-                Show Chats List
-              </button>
-            </div>
-          </div>
-        </div>
+        <OverviewChatAlert
+          setShowChatTable={setShowChatTable}
+          setShowOpenChatMenu={setShowOpenChatMenu}
+        />
       )}
+
+      {selectedCategoryToCluster != "" && (
+        <OverviewClusterMenuPrompt></OverviewClusterMenuPrompt>
+      )}
+
+      {categoriesToValidate.length > 0 && <OverviewClusterValidation />}
+
       <button
         className="secondary small"
         onClick={() => navigate("/analysis/dashboard")}
       >
         {"< Dashboard"}
       </button>
+
       <div className="data-area">
-        {currentData && (
-          <div className="scrollable-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>id</th>
-                  <th>creato il</th>
-                  <th>range date</th>
-                  <th>sito</th>
-                  <th>PN</th>
-                  <th>Categoria NC</th>
-                  <th>Stato</th>
-                  <th>Num Record</th>
-                  <th>Num Categorie</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{currentData.id}</td>
-                  <td>{currentData.created_at}</td>
-                  <td>{currentData.range_date}</td>
-                  <td>{currentData.site}</td>
-                  <td>{currentData.part_numbers.join(", ")}</td>
-                  <td>{currentData.nc_category}</td>
-                  <td>{currentData.status}</td>
-                  <td>{currentData.num_records}</td>
-                  <td>{currentData.num_categories}</td>
-                </tr>
-              </tbody>
-            </table>
+        {data && <GeneralAnalysisOverviewTable />}
+
+        {data && data.description && data.analysis_status != "Editing" && (
+          <div className="ai-description">
+            <div className="title">Descrizione Generata dall'AI</div>
+            <div className="text">{data.description}</div>
           </div>
         )}
-        <div className="ai-description">
-          <div className="title">Descrizione Generata dall'AI</div>
-          <div className="text">
-            {(selected_analysis_data && selected_analysis_data.description) ||
-              "No description available for this analysis. Waiting for AI generation..."}
-          </div>
-        </div>
 
-        {isReady &&
-        selected_analysis_data != null &&
-        selected_analysis_data.dataset != null &&
-        selected_analysis_data.dataset.length > 0 ? (
-          <div
-            className={
-              showChatTable ? "dataset-area show-chat-table" : "dataset-area"
-            }
-          >
-            <div className="table-area">
-              <table className="dataset">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Data</th>
-                    <th>Part Number</th>
-                    <th>Site</th>
-                    <th>Categoria</th>
-                    <th>Sottocategoria</th>
-                    <th>Descrizione</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {selected_analysis_data.dataset.map((record) => (
-                    <tr key={record.id}>
-                      <td>{record.id}</td>
-                      <td>{record.date}</td>
-                      <td>
-                        {
-                          currentData.part_numbers[
-                            Math.floor(
-                              Math.random() * currentData.part_numbers.length
-                            )
-                          ]
-                        }
-                      </td>
-                      <td>{currentData.site}</td>
-                      <td>{record.category}</td>
-                      <td>{record.sub_category}</td>
-                      <td>{record.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <table className="chat">
-                <thead>
-                  <tr>
-                    <th>Chat ID</th>
-                    <th>Data</th>
-                    <th>Total messages</th>
-                    <th>Report messages</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loadedChatsHistory != null &&
-                    loadedChatsHistory.map((chat) => (
-                      <tr key={chat.id} onClick={() => open_chat(chat.id)}>
-                        <td>{chat.id}</td>
-                        <td>{chat.created_at}</td>
-                        <td>{chat.total_messages}</td>
-                        <td>{chat.report_messages}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="buttons">
-              {!showChatTable && (
-                <button className="secondary small">Filtra Dati</button>
-              )}
-              {loadedChatsHistory && loadedChatsHistory.length > 0 && (
-                <button
-                  className="secondary small"
-                  onClick={() => setShowChatTable((state) => !state)}
-                >
-                  {showChatTable
-                    ? "Mostra Dataset Esteso"
-                    : "Mostra Storico Chat"}
-                </button>
-              )}
-            </div>
-          </div>
+        {dataset != null && dataset.length > 0 ? (
+          <>
+            {!showChatTable && data && data.analysis_status != "Validated" && (
+              <OverviewCategoriesFilter />
+            )}
+            {data &&
+              dataset &&
+              (showCharts ? (
+                <OverviewDefaultCharts />
+              ) : (
+                <OverviewMainTables
+                  showChatTable={showChatTable}
+                  setShowChatTable={setShowChatTable}
+                />
+              ))}
+          </>
         ) : (
-          <div className="loading-indicator">Elaborazione in corso...</div>
+          categories == null ||
+          (categories.length === 0 && (
+            <div className="loading-indicator">
+              Categories elaboration in progress...
+            </div>
+          ))
         )}
       </div>
-      {isReady && (
+
+      {data?.analysis_status == "Validated" ? (
         <div className="actions-buttons">
           <button
+            className="charts-toggle secondary no-wrap"
+            onClick={() => setShowCharts((val) => !val)}
+          >
+            {showCharts ? "Mostra Dataset" : "Mostra grafici"}
+          </button>
+          <button
             className="primary no-wrap"
-            onClick={() =>
-              createExcelFileForDataset(
-                selected_analysis_data.dataset,
-                analysisId
-              )
-            }
+            onClick={() => createExcelFileForDataset(dataset, analysisId)}
           >
             Download Dataset
           </button>
@@ -262,6 +217,30 @@ function AnalysisOverview() {
             Conversational BI
           </button>
         </div>
+      ) : (
+        data?.analysis_status == "Processed" && (
+          <div className="actions-buttons">
+            <button
+              className="primary no-wrap"
+              onClick={() => {
+                const new_data = {
+                  ...data,
+                  analysis_status: "Validated",
+                };
+                setMockedData(new_data);
+              }}
+            >
+              Validate Analysis
+            </button>
+            <button
+              className="primary no-wrap"
+              onClick={() => setSelectedCategoryToCluster(selectedCategory)}
+              disabled={selectedCategory === ""}
+            >
+              Apri Menu Elaborazione Cluster
+            </button>
+          </div>
+        )
       )}
     </div>
   );

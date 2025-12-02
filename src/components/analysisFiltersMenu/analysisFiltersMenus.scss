@@ -201,6 +201,7 @@
               user-select: none;
               pointer-events: none;
               accent-color: $color_bg_sidebar_darker;
+              transform: translateY(50%);
             }
 
             font-family: $font_family_primary;
@@ -213,8 +214,8 @@
               .top-section {
                 display: flex;
                 align-items: center;
-                gap: $padding_small;
-                justify-content: space-between;
+                gap: $padding_medium;
+                justify-content: flex-start;
 
                 .title {
                   display: flex;

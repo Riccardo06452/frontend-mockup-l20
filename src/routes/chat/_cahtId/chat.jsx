@@ -5,6 +5,11 @@ import { useParams } from "react-router-dom";
 import useChatDashboardStore from "../../../stores/useChatDashboardStore";
 import PieChartComponent from "../../../components/charts/PieChartComponent";
 import pptxgen from "pptxgenjs";
+import useAnalysisOverview from "../../../stores/useAnalysisOverview";
+import ParetoChart from "../../../components/charts/ParetoChart";
+import PNVolumeChart from "../../../components/charts/PNVolumeChart";
+import GeneralAnalysisOverviewTable from "../../../components/generalAnalysisOverviewTable/generalAnalysisOverviewTable";
+import useAnalysisDashboardStore from "../../../stores/useAnalysisDashboardStore";
 
 function ChatPage() {
   const { chatId } = useParams();
@@ -27,18 +32,80 @@ function ChatPage() {
     useSavedPromptInCurrentChat,
     sendGroupMessageInProgress,
     saveNewPromptGroup,
+    getChatDataById,
+    loadedChatsHistory,
+    loadAllChatsHistory,
   } = useChatDashboardStore();
+
+  const {
+    paretoCategoriesData,
+    partNumberVolumes,
+    fetchDataFromAnalysisId,
+    setMockedCategories,
+    setMockedData,
+    data,
+  } = useAnalysisOverview();
+
+  const { fetchData, data: dashboardData } = useAnalysisDashboardStore();
   const [showSettings, setShowSettings] = React.useState("");
   const [promptsTitle, setPromptsTitle] = React.useState("");
   const [promptsDescription, setPromptsDescription] = React.useState("");
   const [promptsStatus, setPromptsStatus] = React.useState("private");
 
   const charts = React.useRef({});
+  const default_charts = React.useRef({});
 
   useEffect(() => {
+    if (dashboardData == null || dashboardData.length === 0) {
+      fetchData();
+    }
+
+    setMockedData(
+      dashboardData.filter((analysis) => chatId.startsWith(analysis.id))[0]
+    );
+
+    loadAllChatsHistory();
     loadMessagesByChatId(chatId);
     loadSavedPromptsList();
-  }, [chatId, loadMessagesByChatId, loadSavedPromptsList]);
+  }, [
+    chatId,
+    loadMessagesByChatId,
+    loadSavedPromptsList,
+    loadAllChatsHistory,
+    setMockedData,
+    fetchData,
+    dashboardData,
+  ]);
+
+  useEffect(() => {
+    if (loadedChatsHistory) {
+      const chat = getChatDataById(chatId);
+      if (chat != null) {
+        console.log("=======\n\n\n loaded chat: ", chat);
+        const fackedCategories = [
+          "OLED SCHERMO GUASTO",
+          "OLED SOFTWARE GUASTO",
+          "DIFETTI ESTETICI",
+          "DIFETTI FUNZIONALI",
+          "DIFETTI FUNZIONALI",
+          "DIFETTI FUNZIONALI",
+          "DIFETTI FUNZIONALI",
+          "DIFETTI FUNZIONALI",
+          "DIFETTI FUNZIONALI",
+          "DIFETTI FUNZIONALI",
+        ];
+        setMockedCategories(
+          fackedCategories.map((cat) => {
+            return {
+              name: cat,
+              selected: true,
+            };
+          })
+        );
+        fetchDataFromAnalysisId(chat.analysis_id);
+      }
+    }
+  }, [loadedChatsHistory, getChatDataById]);
 
   useEffect(() => {
     if (currentChatMessages && chatEndRef.current) {
@@ -72,8 +139,25 @@ function ChatPage() {
   const downloadReport = async () => {
     console.log("Downloading report...");
     console.log(charts.current);
+    console.log(default_charts.current);
 
     const pptx = new pptxgen();
+
+    for (const [key, ref] of Object.entries(default_charts.current)) {
+      if (!ref) continue; // il div potrebbe non essere montato ancora
+
+      const slide = pptx.addSlide();
+      slide.addText("Grafico: " + key, {
+        x: 0.5,
+        y: 0.5,
+        w: 8,
+        h: 1,
+        fontSize: 14,
+      });
+
+      const img = await toPng(ref); // <-- ora ref è corretto
+      slide.addImage({ data: img, x: 1, y: 1.5, w: 6, h: 4 });
+    }
 
     for (const [index, message] of currentChatMessages.entries()) {
       if (message.addedToReport) {
@@ -108,6 +192,11 @@ function ChatPage() {
           </p>
         </div>
       )}
+      {showSettings === "" && dashboardData && data && (
+        <div className="scrollable-table">
+          <GeneralAnalysisOverviewTable />
+        </div>
+      )}
       <div className="chat-area">
         {showSettings != "" ? (
           <div className="settings-panel">
@@ -115,9 +204,39 @@ function ChatPage() {
               <div className="report-area">
                 <h3>Report messages</h3>
                 <div className="scrollable-area">
-                  {currentChatMessages.map((message, index) => (
-                    <>
-                      {message.sender === "bot" && message.addedToReport && (
+                  <div className="message report full-width-graph">
+                    <div ref={(el) => (default_charts.current["pareto"] = el)}>
+                      <ParetoChart data={paretoCategoriesData} />
+                    </div>
+                  </div>
+
+                  <div className="message report full-width-graph">
+                    <div ref={(el) => (default_charts.current["volumes"] = el)}>
+                      <PNVolumeChart
+                        positive={partNumberVolumes.success}
+                        negative={partNumberVolumes.failures}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="message report full-width-graph">
+                    <div
+                      ref={(el) =>
+                        (default_charts.current["distribution"] = el)
+                      }
+                    >
+                      <PieChartComponent
+                        data={paretoCategoriesData.map((data) => ({
+                          label: data.label,
+                          value: data.value,
+                          id: data.label,
+                        }))}
+                      />
+                    </div>
+                  </div>
+                  {currentChatMessages.map((message, index) => {
+                    if (message.sender === "bot" && message.addedToReport) {
+                      return (
                         <div className="message report" key={index}>
                           {message.content}
                           {message.sender === "bot" &&
@@ -141,15 +260,12 @@ function ChatPage() {
                             </button>
                           </div>
                         </div>
-                      )}
-                    </>
-                  ))}
+                      );
+                    }
+                  })}
                 </div>
                 <button
                   className="secondary full-width"
-                  disabled={
-                    !currentChatMessages.some((msg) => msg.addedToReport)
-                  }
                   onClick={downloadReport}
                 >
                   Crea Report
@@ -378,10 +494,6 @@ function ChatPage() {
             <button
               className="secondary"
               onClick={() => setShowSettings("report")}
-              disabled={
-                !currentChatMessages ||
-                !currentChatMessages.some((msg) => msg.addedToReport)
-              }
             >
               Show Report Groups
             </button>

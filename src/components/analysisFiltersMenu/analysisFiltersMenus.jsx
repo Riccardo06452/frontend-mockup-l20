@@ -10,8 +10,6 @@ function AnalysisFiltersMenu() {
   const {
     categories,
     toggleCategorySelected,
-    toggleCategoryExpanded,
-    toggleSubCategorySelected,
     filters,
     setFilters,
     toggleFiltersMenu,
@@ -97,7 +95,11 @@ function AnalysisFiltersMenu() {
   };
 
   const find_option_from_value = (options, value) => {
-    return options.find((option) => option.value === value) || null;
+    if (typeof value === "string") {
+      return options.find((option) => option.value === value) || null;
+    } else if (Array.isArray(value)) {
+      return options.filter((option) => value.includes(option.value));
+    }
   };
 
   return (
@@ -271,6 +273,7 @@ function AnalysisFiltersMenu() {
                         setFilters({ site: selectedOption?.value || null })
                       }
                       className="select-component"
+                      isMulti={true}
                     />
                   </div>
                   <div className="input">
@@ -288,6 +291,8 @@ function AnalysisFiltersMenu() {
                         })
                       }
                       className="select-component"
+                      isMulti={true}
+                      placeholder="All PNs"
                     />
                   </div>
                   <div className="input">
@@ -365,55 +370,17 @@ function AnalysisFiltersMenu() {
                         <div className="accordion">
                           <div
                             className="top-section"
-                            onClick={() => toggleCategoryExpanded(key)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleCategorySelected(key);
+                            }}
                           >
-                            <div
-                              className="title"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                toggleCategorySelected(key);
-                              }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={category.selected}
-                                readOnly
-                              />
-                              {category.title}
-                            </div>
-                            <div className="arrow">
-                              {category.expanded ? "▲" : "▼"}
-                            </div>
-                          </div>
-                          <div
-                            className={
-                              category.expanded
-                                ? "expandable expanded"
-                                : "expandable"
-                            }
-                          >
-                            {category.subCategories.map(
-                              (subCategory, index) => (
-                                <div
-                                  className="sub-category"
-                                  key={index}
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    toggleSubCategorySelected(key, index);
-                                  }}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={
-                                      categories[key].subCategories[index]
-                                        .selected
-                                    }
-                                    readOnly
-                                  />
-                                  {subCategory.title}
-                                </div>
-                              )
-                            )}
+                            <input
+                              type="checkbox"
+                              checked={category.selected}
+                              readOnly
+                            />
+                            <span>{category.title}</span>
                           </div>
                         </div>
                       </li>
