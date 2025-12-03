@@ -19,7 +19,6 @@
   .scrollable-table {
     overflow-x: auto;
     overflow-y: hidden;
-    height: 110px !important;
     flex-shrink: 0;
     margin-bottom: $padding_small;
 
@@ -157,6 +156,7 @@
         .scrollable-area {
           flex-grow: 1;
           width: 100%;
+          height: 100%;
           overflow-y: auto;
           .message.bot,
           .message.user {

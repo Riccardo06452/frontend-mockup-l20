@@ -42,11 +42,11 @@ $color_bg_main_content: color.adjust(
   $lightness: +15%
 );
 
-$topbar_height: 100px;
+$topbar_height: 60px;
 
-$padding_small: 10px;
-$padding_medium: 20px;
-$padding_large: 30px;
+$padding_small: 7px;
+$padding_medium: 14px;
+$padding_large: 21px;
 
 $gap_links: 10px;
 
@@ -54,7 +54,7 @@ $box_shadow_navbar: $box_shadow_common;
 
 // NAVBAR - TITLE
 $title_color: $color_bg_sidebar_darker;
-$title_font_size: 2rem;
+$title_font_size: 3rem;
 $title_font_weight: bold;
 
 // NAVBAR - USER AVATAR AND INFO
@@ -62,7 +62,7 @@ $username_font_size: 1.9rem;
 $role_font_size: 1.2rem;
 $username_align: right;
 
-$avatar_size: 60px;
+$avatar_size: 40px;
 $avatar_font_size: 1.9rem;
 $color_bg_avatar: $color_secondary_cyan_green;
 
@@ -142,3 +142,7 @@ $breakpoint_mobile: 768px;
 $breakpoint_tablet: 1024px;
 $breakpoint_laptop: 1440px;
 $breakpoint_desktop: 2560px;
+
+:root {
+  font-size: 9px;
+}

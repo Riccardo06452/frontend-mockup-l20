@@ -221,7 +221,7 @@ function AnalysisOverview() {
         data?.analysis_status == "Processed" && (
           <div className="actions-buttons">
             <button
-              className="primary no-wrap"
+              className="primary no-wrap big"
               onClick={() => {
                 const new_data = {
                   ...data,
@@ -233,7 +233,7 @@ function AnalysisOverview() {
               Validate Analysis
             </button>
             <button
-              className="primary no-wrap"
+              className="primary no-wrap big"
               onClick={() => setSelectedCategoryToCluster(selectedCategory)}
               disabled={selectedCategory === ""}
             >

@@ -5,11 +5,11 @@ function PieChartComponent({ data }) {
   // [ { id: "java", label: "java", value: 55 }, { id: "python", label: "python", value: 75 } ]
 
   return (
-    <div style={{ width: "100%", height: "400px" }}>
+    <div style={{ width: "100%", height: "250px" }}>
       <ResponsivePieCanvas /* or PieCanvas for fixed dimensions */
         data={data}
-        defaultWidth={400}
-        defaultHeight={400}
+        defaultWidth={200}
+        defaultHeight={200}
         margin={{ top: 40, bottom: 40, left: 40, right: 40 }}
         innerRadius={0.25}
         padAngle={1}

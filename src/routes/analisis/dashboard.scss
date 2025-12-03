@@ -29,6 +29,7 @@
       display: flex;
       justify-content: space-between;
       align-self: end;
+      align-items: center;
 
       .title {
         font-size: $history_area_title_font_size;

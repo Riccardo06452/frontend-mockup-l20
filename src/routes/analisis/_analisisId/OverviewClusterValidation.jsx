@@ -93,9 +93,8 @@ function OverviewClusterValidation() {
           </button>
         </div>
         <div className="buttons-section">
-          <button className="secondary no-wrap">Cancel</button>
           <button
-            className="secondary no-wrap "
+            className="secondary no-wrap full-width big"
             onClick={() => {
               const selectedCategories = categoriesToValidate
                 .filter((cat) => cat.selected)

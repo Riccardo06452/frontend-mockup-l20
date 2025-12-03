@@ -422,12 +422,19 @@ function ChatPage() {
             {currentChatMessages && currentChatMessages.length > 0 && (
               <>
                 {currentChatMessages.map((message, index) => (
-                  <div key={index} className={`message ${message.sender}`}>
+                  <div
+                    key={index}
+                    className={`message ${message.sender} ${
+                      message.chart_type != null && "full-width-graph"
+                    }`}
+                  >
                     {message.content}
                     {message.sender === "bot" && message.chart_type != null && (
                       <>
                         {message.chart_type === "pie" && (
-                          <PieChartComponent data={message.data} />
+                          <div className="pie-chart-container">
+                            <PieChartComponent data={message.data} />
+                          </div>
                         )}
                       </>
                     )}

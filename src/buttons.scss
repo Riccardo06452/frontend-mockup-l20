@@ -13,13 +13,14 @@ $inner_shadow_active: inset 0px 0px 30px rgba(0, 0, 0, 0.2);
 button {
   cursor: pointer;
   border: none;
-  padding: $padding_medium $padding_large;
+  padding: $padding_small $padding_medium;
   border-radius: $global_border_radius;
   font-weight: $button_font_weight;
   transition: color $button_transition_speed,
     background-color $button_transition_speed,
     box-shadow $button_transition_speed;
   box-shadow: $box_shadow_common;
+  font-size: 1rem;
   color: $color_primary_leonardo_dark_gray;
 
   &.no-wrap {

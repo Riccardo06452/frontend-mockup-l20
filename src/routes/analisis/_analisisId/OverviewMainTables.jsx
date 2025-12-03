@@ -1,10 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import useAnalysisOverview from "../../../stores/useAnalysisOverview";
 import useChatDashboardStore from "../../../stores/useChatDashboardStore";
-
+import Select from "react-select";
 function OverviewMainTables({ showChatTable, setShowChatTable }) {
   const navigate = useNavigate();
-  const { data, dataset, selectedCategory } = useAnalysisOverview();
+  const {
+    data,
+    dataset,
+    selectedCategory,
+    categories,
+    updateDatasetRecordCategory,
+  } = useAnalysisOverview();
   const { loadedChatsHistory } = useChatDashboardStore();
   const open_chat = (id) => {
     navigate(`/chat/${id}`);
@@ -25,7 +31,6 @@ function OverviewMainTables({ showChatTable, setShowChatTable }) {
               <th>Part Number</th>
               <th>Site</th>
               <th className="center">Categoria</th>
-              <th className="center">Categoria Padre</th>
               <th>Descrizione</th>
             </tr>
           </thead>
@@ -43,10 +48,57 @@ function OverviewMainTables({ showChatTable, setShowChatTable }) {
                   <td>{record.part_number}</td>
                   <td>{data.site}</td>
                   <td>
-                    <div>{record.category}</div>
-                  </td>
-                  <td>
-                    <div className="center">{record.parent_category}</div>
+                    <div>
+                      {data.analysis_status === "Validated" ? (
+                        record.category
+                      ) : (
+                        <Select
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              minHeight: 30,
+                              height: 30,
+                              fontSize: "0.8rem",
+                              minWidth: 200,
+                            }),
+                            valueContainer: (base) => ({
+                              ...base,
+                              padding: "0 6px",
+                            }),
+                            indicatorsContainer: (base) => ({
+                              ...base,
+                              height: 30,
+                            }),
+                          }}
+                          id="input-nc-category"
+                          options={categories.map((category) => ({
+                            value: category.name,
+                            label: category.name,
+                          }))}
+                          value={
+                            record.category
+                              ? {
+                                  value: record.category,
+                                  label: record.category,
+                                }
+                              : null
+                          }
+                          onChange={(selectedOption) => {
+                            console.log(
+                              "changing category from: ",
+                              record.category,
+                              " to: ",
+                              selectedOption.value
+                            );
+                            updateDatasetRecordCategory(
+                              record.id,
+                              selectedOption.value
+                            );
+                          }}
+                          className="select-component"
+                        />
+                      )}
+                    </div>
                   </td>
                   <td>{record.description}</td>
                 </tr>

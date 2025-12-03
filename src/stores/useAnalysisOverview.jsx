@@ -44,6 +44,20 @@ const useAnalysisOverview = create((set, get) => ({
     set({ data: null, dataset: [], categories: [], analysisId: null });
   },
 
+  updateDatasetRecordCategory: (id, category) => {
+    set({
+      dataset: get().dataset.map((value) => {
+        if (id === value.id) {
+          return {
+            ...value,
+            category: category,
+          };
+        }
+        return value;
+      }),
+    });
+  },
+
   setMockedCategories: (categories) => {
     set({ categories: categories });
   },
