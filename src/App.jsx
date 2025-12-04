@@ -5,6 +5,7 @@ import AnalysisDashboard from "./routes/analisis/dashboard";
 import ChatDashboard from "./routes/chat/dashboard";
 import "./buttons.scss";
 import "./tables.scss";
+import "./icons.scss";
 import AnalysisOverview from "./routes/analisis/_analisisId/overview";
 import ChatPage from "./routes/chat/_cahtId/chat";
 import useChatDashboardStore from "./stores/useChatDashboardStore";

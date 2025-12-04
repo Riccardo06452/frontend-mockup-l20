@@ -1,0 +1,20 @@
+@use "global" as *;
+
+.icon {
+  width: 1em;
+  height: 1em;
+
+  &.large {
+    width: 2em;
+    height: 2em;
+  }
+
+  &.clickable {
+    cursor: pointer;
+  }
+
+  &.right {
+    position: absolute;
+    right: $padding_medium;
+  }
+}

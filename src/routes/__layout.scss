@@ -12,6 +12,24 @@
     flex-direction: column;
     flex-shrink: 0;
     flex-grow: 0;
+    position: relative;
+    transition: width 0.3s ease, left 0.3s ease;
+    * {
+      transition: opacity 0.3s ease, color 0.3s ease;
+    }
+    &.closed {
+      width: 0;
+      overflow: hidden;
+
+      *:not(.logo, .logout) {
+        opacity: 0;
+      }
+
+      .logo,
+      .logout {
+        color: $color_bg_sidebar_darker;
+      }
+    }
 
     @media screen and (max-width: $breakpoint_tablet) {
       position: fixed;
@@ -81,6 +99,11 @@
     background-color: $color_bg_main_content;
     font-family: $font_family_primary;
     overflow: hidden;
+    transition: width 0.3s ease, left 0.3s ease;
+
+    &.expanded {
+      width: 100%;
+    }
 
     @media screen and (max-width: $breakpoint_tablet) {
       width: 100%;
@@ -98,9 +121,31 @@
       justify-content: space-between;
       align-items: center;
 
+      & > :first-child,
+      & > :last-child {
+        flex: 1;
+      }
+
+      & > :last-child {
+        justify-content: flex-end;
+      }
+
+      & > :first-child {
+        justify-content: flex-start;
+      }
+
+      & > :not(:first-child):not(:last-child) {
+        flex: 2;
+        text-align: center;
+      }
+
       .title {
         font-size: $title_font_size;
         font-weight: $title_font_weight;
+
+        &.small {
+          font-size: calc($title_font_size * 0.7);
+        }
       }
 
       .user {

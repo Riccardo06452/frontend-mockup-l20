@@ -51,7 +51,8 @@ function ChatPage() {
   const [promptsTitle, setPromptsTitle] = React.useState("");
   const [promptsDescription, setPromptsDescription] = React.useState("");
   const [promptsStatus, setPromptsStatus] = React.useState("private");
-
+  const [showPublishPopup, setShowPublishPopup] = React.useState(false);
+  const [isReportGoodEnough, setIsReportGoodEnough] = React.useState(false);
   const charts = React.useRef({});
   const default_charts = React.useRef({});
 
@@ -186,12 +187,53 @@ function ChatPage() {
     <div className="chat-page-container">
       {sendGroupMessageInProgress && (
         <div className="overlay">
-          <p>
+          <p className="loading-prompt-message">
             Sending saved prompt messages to chat, please wait. Do not close
             this window or refresh the page.
           </p>
         </div>
       )}
+
+      {showPublishPopup && (
+        <div className="overlay ">
+          <div className="publish-popup">
+            <h2>Publish Chat</h2>
+            <p>
+              Before publishing a chat be sure that the report contains all the
+              necessary information and charts you want to share. Therefor click
+              on "Publish Chat" to make the chat available to other users.
+            </p>
+            <div className="checkbox-area">
+              <input
+                type="checkbox"
+                id="confirm-consistency"
+                name="confirm-consistency"
+                value={isReportGoodEnough}
+                onChange={(e) => setIsReportGoodEnough(e.target.checked)}
+              />
+              <label htmlFor="confirm-consistency">
+                The report is good enough to be published
+              </label>
+            </div>
+            <div className="buttons">
+              <button
+                className="secondary"
+                onClick={() => setShowPublishPopup(false)}
+              >
+                Close
+              </button>
+              <button
+                className="secondary"
+                onClick={() => setShowPublishPopup(false)}
+                disabled={!isReportGoodEnough}
+              >
+                Publish Chat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showSettings === "" && dashboardData && data && (
         <div className="scrollable-table">
           <GeneralAnalysisOverviewTable />
@@ -519,6 +561,12 @@ function ChatPage() {
               onClick={() => setShowSettings("savedPrompts")}
             >
               Load Saved Prompts
+            </button>
+            <button
+              className="secondary"
+              onClick={() => setShowPublishPopup(true)}
+            >
+              Publish Chat
             </button>
           </div>
         </>
