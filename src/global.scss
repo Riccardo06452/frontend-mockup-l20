@@ -75,6 +75,8 @@ $parts_number_min_width: calc($columns_min_width);
 $color_bg_table_row_hover: rgba($color_primary_leonardo_light_gray, 0.5);
 $inner_shadow_active_row: inset 0px 0px 400px rgba(0, 0, 0, 0.2);
 $color_bg_table_row_selected: rgba($color_secondary_cyan_green, 0.3);
+$color_bg_table_row_failed: rgba($color_primary_leonardo_red, 1);
+$font_color_failed_row: $color_primary_leonardo_white;
 // ANALYSIS FILTERS
 
 $secondary_category_padding_left: calc($padding_large * 1.5);

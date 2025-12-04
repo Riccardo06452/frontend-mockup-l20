@@ -56,6 +56,10 @@ function AnalysisDashboard() {
                 <tr
                   onClick={() => open_analysis(analysis.id)}
                   key={analysis.id}
+                  className={
+                    analysis.analysis_status === "Failed" &&
+                    "failed-analysis-row"
+                  }
                 >
                   <td>{analysis.id}</td>
                   <td>{analysis.analysis_status}</td>

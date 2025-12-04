@@ -106,7 +106,9 @@ const useAnalysisOverview = create((set, get) => ({
           description: "Descrizione del record " + (i + 1),
         }));
         const data = get().data || {};
-        data.description = "Updated description with dataset loaded.";
+        if (data.analysis_status !== "Failed") {
+          data.description = "Updated description with dataset loaded.";
+        }
         set({ dataset: dataset });
         const clean_pn_volumes = {
           success: 0,

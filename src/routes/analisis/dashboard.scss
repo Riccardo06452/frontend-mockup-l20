@@ -46,6 +46,11 @@
       border-top-right-radius: $global_border_radius;
       border-top-left-radius: $global_border_radius;
       position: relative;
+
+      tr.failed-analysis-row {
+        background-color: $color_bg_table_row_failed !important;
+        color: $font_color_failed_row !important;
+      }
     }
   }
 }

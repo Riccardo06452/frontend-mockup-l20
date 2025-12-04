@@ -32,7 +32,11 @@ function AnalysisOverview() {
     selectedCategory,
   } = useAnalysisOverview();
 
-  const { data: dashboardData, fetchData } = useAnalysisDashboardStore();
+  const {
+    data: dashboardData,
+    fetchData,
+    deleteAnalysisById,
+  } = useAnalysisDashboardStore();
   const { loadChatsHistoryByAnalysisId, loadedChatsHistory } =
     useChatDashboardStore();
 
@@ -169,9 +173,10 @@ function AnalysisOverview() {
 
         {dataset != null && dataset.length > 0 ? (
           <>
-            {!showChatTable && data && data.analysis_status != "Validated" && (
-              <OverviewCategoriesFilter />
-            )}
+            {!showChatTable &&
+              data &&
+              data.analysis_status != "Validated" &&
+              data.analysis_status != "Failed" && <OverviewCategoriesFilter />}
             {data &&
               dataset &&
               (showCharts ? (
@@ -217,28 +222,37 @@ function AnalysisOverview() {
             Conversational BI
           </button>
         </div>
+      ) : data?.analysis_status == "Processed" ? (
+        <div className="actions-buttons">
+          <button
+            className="primary no-wrap big"
+            onClick={() => {
+              const new_data = {
+                ...data,
+                analysis_status: "Validated",
+              };
+              setMockedData(new_data);
+            }}
+          >
+            Validate Analysis
+          </button>
+          <button
+            className="primary no-wrap big"
+            onClick={() => setSelectedCategoryToCluster(selectedCategory)}
+            disabled={selectedCategory === ""}
+          >
+            Apri Menu Elaborazione Cluster
+          </button>
+        </div>
       ) : (
-        data?.analysis_status == "Processed" && (
-          <div className="actions-buttons">
-            <button
-              className="primary no-wrap big"
-              onClick={() => {
-                const new_data = {
-                  ...data,
-                  analysis_status: "Validated",
-                };
-                setMockedData(new_data);
-              }}
-            >
-              Validate Analysis
-            </button>
-            <button
-              className="primary no-wrap big"
-              onClick={() => setSelectedCategoryToCluster(selectedCategory)}
-              disabled={selectedCategory === ""}
-            >
-              Apri Menu Elaborazione Cluster
-            </button>
+        data?.analysis_status == "Failed" && (
+          <div
+            className="actions-buttons"
+            onClick={() => {
+              deleteAnalysisById(data.id), navigate("/analysis/dashboard");
+            }}
+          >
+            <button className="primary no-wrap big">DELETE ANALYSIS</button>
           </div>
         )
       )}

@@ -148,6 +148,30 @@ const useAnalysisDashboardStore = create((set, get) => ({
       if (!fakeData) {
         fakeData = [
           {
+            id: 14756,
+            created_at: "12/05/2024 14:30",
+            range_date: "01/05/2024 - 10/05/2024",
+            site: "OFIR",
+            part_numbers: [
+              "12356",
+              "78901",
+              "45623",
+              "98745",
+              "32165",
+              "65432",
+              "11223",
+              "33445",
+              "55667",
+            ],
+            nc_category: "NC ingegneristica",
+            nc_category_options: "produzione",
+            data_status: "Aperto",
+            analysis_status: "Failed",
+            num_records: 458,
+            description: `It is not possible to proceed with the analysis because the dataset contains an excessive number of NULL values.`,
+            num_categories: 47,
+          },
+          {
             id: 1,
             created_at: "12/05/2024 14:30",
             range_date: "01/05/2024 - 10/05/2024",
@@ -437,6 +461,22 @@ const useAnalysisDashboardStore = create((set, get) => ({
     )}.xlsx`;
 
     saveAs(blob, fileName);
+  },
+
+  deleteAnalysisById: (analysisId) => {
+    console.log("deleting analysis with id:", analysisId);
+
+    let fakeData = localStorage.getItem("fakeData");
+    if (fakeData) {
+      fakeData = JSON.parse(fakeData);
+      fakeData = fakeData.filter((item) => item.id != analysisId);
+      localStorage.setItem("fakeData", JSON.stringify(fakeData));
+    } else {
+      fakeData = get().data;
+      fakeData = fakeData.filter((item) => item.id != analysisId);
+      localStorage.setItem("fakeData", JSON.stringify(fakeData));
+    }
+    get().fetchData();
   },
 }));
 
