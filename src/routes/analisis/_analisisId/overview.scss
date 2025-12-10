@@ -14,6 +14,17 @@
   align-items: flex-start;
   gap: $padding_medium;
 
+  .top-buttons {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: start;
+    .back-arrow {
+      color: white;
+      height: $avatar_font_size;
+    }
+  }
+
   .overlay {
     background-color: $overlay_bg_color;
     position: absolute;
@@ -25,7 +36,8 @@
 
     .open-chat-menu,
     .open-cluster-menu,
-    .cluster-selection-menu {
+    .cluster-selection-menu,
+    .alert-box {
       position: absolute;
       top: 50%;
       left: 50%;

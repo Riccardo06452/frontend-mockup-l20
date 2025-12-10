@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useAnalysisOverview from "../../../stores/useAnalysisOverview";
 
-function OverviewClusterMenuPrompt() {
+function OverviewClusterMenuPrompt({ setShowClusterStartMenu }) {
   const [clusterDescription, setClusterDescription] = useState("");
   const [fakeTimer, setFakeTimer] = useState(0);
 
@@ -14,7 +14,6 @@ function OverviewClusterMenuPrompt() {
   useEffect(() => {
     const interval = setInterval(() => {
       if (fakeTimer === 1) {
-        setSelectedCategoryToCluster("");
         const selectedCategoryName = selectedCategoryToCluster.includes(" _ ")
           ? selectedCategoryToCluster.replace(" _ ", " ")
           : selectedCategoryToCluster;
@@ -35,6 +34,7 @@ function OverviewClusterMenuPrompt() {
             selected: true,
           },
         ]);
+        setShowClusterStartMenu(false);
       }
       setFakeTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000); // Aggiorna ogni 5 secondi
@@ -93,7 +93,10 @@ function OverviewClusterMenuPrompt() {
               </button>
               <button
                 className="secondary no-wrap"
-                onClick={() => setSelectedCategoryToCluster("")}
+                onClick={() => {
+                  setSelectedCategoryToCluster("");
+                  setShowClusterStartMenu(false);
+                }}
               >
                 Annulla
               </button>

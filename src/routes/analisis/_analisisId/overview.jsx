@@ -12,6 +12,8 @@ import GeneralAnalysisOverviewTable from "../../../components/generalAnalysisOve
 import OverviewCategoriesFilter from "./OverviewCategoriesFilter";
 import OverviewMainTables from "./OverviewMainTables";
 import OverviewDefaultCharts from "./OverviewDefaultCharts";
+import OverviewDropChangesAlert from "./OverviewDropChangesAlert";
+import { BackwardIcon } from "@heroicons/react/24/outline";
 
 function AnalysisOverview() {
   const { analysisId } = useParams();
@@ -27,9 +29,9 @@ function AnalysisOverview() {
     resetMockupedData,
     categoriesToValidate,
     setMockedCategoriesToValidate,
-    selectedCategoryToCluster,
     setSelectedCategoryToCluster,
     selectedCategory,
+    previous_data,
   } = useAnalysisOverview();
 
   const {
@@ -43,6 +45,8 @@ function AnalysisOverview() {
   const [showChatTable, setShowChatTable] = useState(false);
   const [showOpenChatMenu, setShowOpenChatMenu] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
+  const [showClusterStartMenu, setShowClusterStartMenu] = useState(false);
+  const [showDropChangesAlert, setShowDropChangesAlert] = useState(false);
 
   const openNewChat = () => {
     if (loadedChatsHistory == null || loadedChatsHistory.length === 0) {
@@ -136,8 +140,9 @@ function AnalysisOverview() {
       console.log("Cleanup overview effect");
       resetMockupedData();
       setShowCharts(false);
+      setMockedCategoriesToValidate([]);
     };
-  }, [resetMockupedData]);
+  }, [resetMockupedData, setMockedCategoriesToValidate]);
 
   return (
     <div className="overview-page">
@@ -148,18 +153,34 @@ function AnalysisOverview() {
         />
       )}
 
-      {selectedCategoryToCluster != "" && (
-        <OverviewClusterMenuPrompt></OverviewClusterMenuPrompt>
+      {showDropChangesAlert && (
+        <OverviewDropChangesAlert
+          setShowDropChangesAlert={setShowDropChangesAlert}
+        />
+      )}
+
+      {showClusterStartMenu != "" && (
+        <OverviewClusterMenuPrompt
+          setShowClusterStartMenu={setShowClusterStartMenu}
+        ></OverviewClusterMenuPrompt>
       )}
 
       {categoriesToValidate.length > 0 && <OverviewClusterValidation />}
+      <div className="top-buttons">
+        <button
+          className="secondary small"
+          onClick={() => navigate("/analysis/dashboard")}
+        >
+          {"< Dashboard"}
+        </button>
 
-      <button
-        className="secondary small"
-        onClick={() => navigate("/analysis/dashboard")}
-      >
-        {"< Dashboard"}
-      </button>
+        <button className="secondary small" disabled={!previous_data.is_stored}>
+          <BackwardIcon
+            className="back-arrow"
+            onClick={() => setShowDropChangesAlert(true)}
+          />
+        </button>
+      </div>
 
       <div className="data-area">
         {data && <GeneralAnalysisOverviewTable />}
@@ -238,7 +259,10 @@ function AnalysisOverview() {
           </button>
           <button
             className="primary no-wrap big"
-            onClick={() => setSelectedCategoryToCluster(selectedCategory)}
+            onClick={() => {
+              setSelectedCategoryToCluster(selectedCategory),
+                setShowClusterStartMenu(true);
+            }}
             disabled={selectedCategory === ""}
           >
             Apri Menu Elaborazione Cluster

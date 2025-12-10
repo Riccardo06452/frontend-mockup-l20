@@ -46,11 +46,40 @@
       border-top-right-radius: $global_border_radius;
       border-top-left-radius: $global_border_radius;
       position: relative;
-
-      tr.failed-analysis-row {
-        background-color: $color_bg_table_row_failed !important;
-        color: $font_color_failed_row !important;
-      }
     }
+  }
+}
+
+.label {
+  padding: $padding_small $padding_medium;
+  background-color: $color_primary_leonardo_dark_gray;
+  color: $color_primary_leonardo_white;
+  width: 60%;
+  min-width: fit-content;
+  text-align: center;
+  border-radius: $global_border_radius;
+  box-shadow: $box_shadow_common;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+
+  &.failed {
+    background-color: $color_bg_label_failed;
+    color: $color_font_label_failed;
+  }
+
+  &.validated {
+    background-color: $color_bg_label_validated;
+    color: $color_font_label_validated;
+  }
+
+  &.editing {
+    background-color: $color_bg_label_editing;
+    color: $color_font_label_editing;
+  }
+
+  &.processed {
+    background-color: $color_bg_label_processed;
+    color: $color_font_label_processed;
   }
 }

@@ -66,7 +66,10 @@ function AnalysisFiltersMenu() {
           )
       )
       .map(([key, category]) => {
-        if (category.title.toLowerCase().includes(filter)) {
+        if (
+          category.title.toLowerCase().includes(filter) ||
+          category.description?.toLowerCase().includes(filter)
+        ) {
           return [key, category];
         }
 
@@ -380,7 +383,10 @@ function AnalysisFiltersMenu() {
                               checked={category.selected}
                               readOnly
                             />
-                            <span>{category.title}</span>
+                            <span>
+                              <b>{category.title + ": "}</b>
+                              {category.description}
+                            </span>
                           </div>
                         </div>
                       </li>

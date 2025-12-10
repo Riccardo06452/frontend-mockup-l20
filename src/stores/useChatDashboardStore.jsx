@@ -16,7 +16,12 @@ const useChatDashboardStore = create((set, get) => ({
 
   loadedSavedPromptId: null,
 
+  is_current_chat_public: false,
+
   sendGroupMessageInProgress: false,
+
+  setIsCurrentChatPublic: (isPublic) =>
+    set({ is_current_chat_public: isPublic }),
 
   setSendMessageInProgress: (inProgress) =>
     set({ sendMessageInProgress: inProgress }),

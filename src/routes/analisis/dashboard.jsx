@@ -39,7 +39,7 @@ function AnalysisDashboard() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Analysis Status</th>
+                <th className="centered">Analysis Status</th>
                 <th>Created At</th>
                 <th>Dates Range</th>
                 <th>Site</th>
@@ -56,13 +56,19 @@ function AnalysisDashboard() {
                 <tr
                   onClick={() => open_analysis(analysis.id)}
                   key={analysis.id}
-                  className={
-                    analysis.analysis_status === "Failed" &&
-                    "failed-analysis-row"
-                  }
                 >
                   <td>{analysis.id}</td>
-                  <td>{analysis.analysis_status}</td>
+                  <td className="centered">
+                    <div
+                      className={
+                        "label " + analysis.analysis_status.toLowerCase()
+                      }
+                    >
+                      {analysis.analysis_status != "Failed"
+                        ? analysis.analysis_status
+                        : "Unprocessable"}
+                    </div>
+                  </td>
                   <td>{analysis.created_at}</td>
                   <td>{analysis.range_date}</td>
                   <td>{analysis.site}</td>

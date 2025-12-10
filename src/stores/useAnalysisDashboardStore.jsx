@@ -128,13 +128,38 @@ const useAnalysisDashboardStore = create((set, get) => ({
   fetchCategories: async (userID) => {
     console.log("Fetching categories for user:", userID);
     // const response = await axios.get("/api/categories", { params: { userID} });
-    const response = {};
-    for (let index = 0; index < 30; index++) {
-      response[`category_${index}`] = {
-        title: `Category ${index}`,
+    const response = {
+      category_1: {
+        title: `Quarzo Interrotto`,
         selected: false,
-      };
-    }
+        description: `Il quarzo all'interno del componente elettronico è interrotto, causando un malfunzionamento irreparabile. Questo difetto è di natura funzionale e impedisce il corretto avanzamento del prodotto nelle fasi successive di lavoro.`,
+      },
+      category_2: {
+        title: `Quarzo Decentrato`,
+        selected: false,
+        description: `Il quarzo all'interno del componente elettronico è posizionato in modo decentrato, compromettendo il corretto funzionamento del dispositivo. Questo difetto è di natura dimensionale e può impedire il proseguimento del processo di produzione.`,
+      },
+      category_3: {
+        title: `Fotoincisione Decentrata`,
+        selected: false,
+        description: `La fotoincisione sul substrato è posizionata in modo decentrato, causando una non conformità visiva e dimensionale. Questo difetto impedisce il passaggio del componente ai test successivi e richiede lo scarto del prodotto.`,
+      },
+      category_4: {
+        title: `Fotoincisione Interrotta`,
+        selected: false,
+        description: `La fotoincisione sul substrato è interrotta, causando una non conformità visiva e funzionale. Questo difetto rende il componente non riparabile e richiede la sua eliminazione dal processo di produzione.`,
+      },
+      category_5: {
+        title: `Substrato Fuori Specifica`,
+        selected: false,
+        description: `Il substrato finale del flusso di montaggio non risponde alle specifiche richieste, causando un malfunzionamento funzionale. Questo difetto impedisce il proseguimento del processo di produzione e richiede lo scarto del prodotto.`,
+      },
+      category_6: {
+        title: `Accoppiamento Diretto Fuori Specifica`,
+        selected: false,
+        description: `La misura di accoppiamento diretto del componente non rientra nelle specifiche richieste, causando una non conformità funzionale. Questo difetto impedisce il passaggio del componente ai test successivi e richiede la sua eliminazione dal processo di produzione.`,
+      },
+    };
     set({ categories: response });
   },
 
@@ -219,13 +244,9 @@ const useAnalysisDashboardStore = create((set, get) => ({
             nc_category_options: "produzione",
             data_status: "Aperto",
             analysis_status: "Validated",
-            num_records: 458,
-            description: `Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-        Rem doloribus aliquam facilis facere! Quos eveniet facere voluptatum eaque!
-        Itaque esse, reprehenderit fugit iusto consequatur aperiam. Amet a blanditiis
-        fuga laborum fugiat quidem eos quae quasi sapiente in. Ut, modi cumque nostrum
-        fuga aperiam doloribus laborum, fugit deserunt molestias libero non!`,
-            num_categories: 47,
+            num_records: 21,
+            description: `This is an example based on a real analysis with changed data for privacy reasons.`,
+            num_categories: 6,
           },
         ];
         localStorage.setItem("fakeData", JSON.stringify(fakeData));

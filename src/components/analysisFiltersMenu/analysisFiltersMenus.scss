@@ -217,6 +217,11 @@
                 gap: $padding_medium;
                 justify-content: flex-start;
 
+                b {
+                  text-transform: uppercase;
+                  font-size: 1.3rem;
+                }
+
                 .title {
                   display: flex;
                   align-items: center;

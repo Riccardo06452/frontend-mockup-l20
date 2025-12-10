@@ -9,6 +9,11 @@ function OverviewClusterValidation() {
     categories,
     categoriesToValidate,
     setMockedCategoriesToValidate,
+    selectedCategoryToCluster,
+    dataset,
+    setDataset,
+    setSelectedCategory,
+    setPreviousData,
   } = useAnalysisOverview();
 
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -87,6 +92,7 @@ function OverviewClusterValidation() {
               setMockedCategoriesToValidate(newCategories);
               setNewCategoryName("");
               setNewCategoryDescription("");
+              setSelectedCategory("");
             }}
           >
             Add Category
@@ -106,8 +112,32 @@ function OverviewClusterValidation() {
                 ...data,
                 analysis_status: "Processed",
               };
+              console.log(categories, selectedCategoryToCluster);
+
+              const filtered_categories = categories.filter(
+                (cat) => cat.name !== selectedCategoryToCluster
+              );
               setMockedData(new_data);
-              setMockedCategories([...categories, ...selectedCategories]);
+              setMockedCategories([
+                ...filtered_categories,
+                ...selectedCategories,
+              ]);
+              let round_index = 1000;
+              const new_dataset = dataset.map((record) => {
+                if (record.category === selectedCategoryToCluster) {
+                  round_index += 1;
+                  if (round_index >= selectedCategories.length) {
+                    round_index = 0;
+                  }
+                  return {
+                    ...record,
+                    category: selectedCategories[round_index].name,
+                  };
+                }
+                return record;
+              });
+              setDataset(new_dataset);
+              setPreviousData(categories, dataset, true);
               setMockedCategoriesToValidate([]);
             }}
           >

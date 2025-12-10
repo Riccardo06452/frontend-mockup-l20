@@ -28,6 +28,10 @@ table {
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    &.centered {
+      text-align: center;
+    }
   }
 
   thead {

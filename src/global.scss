@@ -75,10 +75,21 @@ $parts_number_min_width: calc($columns_min_width);
 $color_bg_table_row_hover: rgba($color_primary_leonardo_light_gray, 0.5);
 $inner_shadow_active_row: inset 0px 0px 400px rgba(0, 0, 0, 0.2);
 $color_bg_table_row_selected: rgba($color_secondary_cyan_green, 0.3);
-$color_bg_table_row_failed: rgba($color_primary_leonardo_red, 1);
-$font_color_failed_row: $color_primary_leonardo_white;
-// ANALYSIS FILTERS
 
+// LABELS
+$color_bg_label_failed: rgba($color_primary_leonardo_red, 1);
+$color_font_label_failed: $color_primary_leonardo_white;
+
+$color_bg_label_validated: rgba($color_secondary_dark_green, 1);
+$color_font_label_validated: $color_primary_leonardo_white;
+
+$color_bg_label_editing: rgba($color_secondary_orange, 1);
+$color_font_label_editing: $color_primary_leonardo_white;
+
+$color_bg_label_processed: rgba($color_secondary_yellow, 1);
+$color_font_label_processed: $color_primary_leonardo_black;
+
+// ANALYSIS FILTERS
 $secondary_category_padding_left: calc($padding_large * 1.5);
 $category_hover_bg_color: rgba($color_bg_sidebar_links_selected, 0.2);
 $category_font_size: 1.3rem;
