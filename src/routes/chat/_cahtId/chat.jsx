@@ -35,6 +35,8 @@ function ChatPage() {
     getChatDataById,
     loadedChatsHistory,
     loadAllChatsHistory,
+    setIsCurrentChatPublic,
+    is_current_chat_public,
   } = useChatDashboardStore();
 
   const {
@@ -83,7 +85,7 @@ function ChatPage() {
       const chat = getChatDataById(chatId);
       if (chat != null) {
         console.log("=======\n\n\n loaded chat: ", chat);
-        const fackedCategories = [
+        const fakeDatasetWithCategories = [
           "OLED SCHERMO GUASTO",
           "OLED SOFTWARE GUASTO",
           "DIFETTI ESTETICI",
@@ -96,7 +98,7 @@ function ChatPage() {
           "DIFETTI FUNZIONALI",
         ];
         setMockedCategories(
-          fackedCategories.map((cat) => {
+          fakeDatasetWithCategories.map((cat) => {
             return {
               name: cat,
               selected: true,
@@ -197,39 +199,94 @@ function ChatPage() {
       {showPublishPopup && (
         <div className="overlay ">
           <div className="publish-popup">
-            <h2>Publish Chat</h2>
-            <p>
-              Before publishing a chat be sure that the report contains all the
-              necessary information and charts you want to share. Therefor click
-              on "Publish Chat" to make the chat available to other users.
-            </p>
-            <div className="checkbox-area">
-              <input
-                type="checkbox"
-                id="confirm-consistency"
-                name="confirm-consistency"
-                value={isReportGoodEnough}
-                onChange={(e) => setIsReportGoodEnough(e.target.checked)}
-              />
-              <label htmlFor="confirm-consistency">
-                The report is good enough to be published
-              </label>
-            </div>
-            <div className="buttons">
-              <button
-                className="secondary"
-                onClick={() => setShowPublishPopup(false)}
-              >
-                Close
-              </button>
-              <button
-                className="secondary"
-                onClick={() => setShowPublishPopup(false)}
-                disabled={!isReportGoodEnough}
-              >
-                Publish Chat
-              </button>
-            </div>
+            {!is_current_chat_public ? (
+              <>
+                <h2>Publish Chat</h2>
+                <p>
+                  Before publishing a chat be sure that the report contains all
+                  the necessary information and charts you want to share.
+                  Therefor click on "Publish Chat" to make the chat available to
+                  other users.
+                </p>
+                <div className="checkbox-area">
+                  <input
+                    type="checkbox"
+                    id="confirm-consistency"
+                    name="confirm-consistency"
+                    value={isReportGoodEnough}
+                    onChange={(e) => setIsReportGoodEnough(e.target.checked)}
+                  />
+                  <label htmlFor="confirm-consistency">
+                    The report is good enough to be published
+                  </label>
+                </div>
+                <div className="buttons">
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      setShowPublishPopup(false), setIsReportGoodEnough(false);
+                    }}
+                  >
+                    Close
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      setShowPublishPopup(false);
+                      setIsCurrentChatPublic(true);
+                      setIsReportGoodEnough(false);
+                    }}
+                    disabled={!isReportGoodEnough}
+                  >
+                    Publish Chat
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2>Unpublish Chat</h2>
+                <p>
+                  Are you sure you want to unpublish this chat? Once
+                  unpublished, it will no longer be accessible to other users
+                  untill you publish it again.
+                </p>
+                <div className="checkbox-area">
+                  <input
+                    type="checkbox"
+                    id="confirm-consistency"
+                    name="confirm-consistency"
+                    value={isReportGoodEnough}
+                    onChange={(e) => setIsReportGoodEnough(e.target.checked)}
+                  />
+                  <label htmlFor="confirm-consistency">
+                    I understand that unpublishing will restrict access to this
+                    chat
+                  </label>
+                </div>
+                <div className="buttons">
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      setShowPublishPopup(false);
+                      setIsReportGoodEnough(false);
+                    }}
+                  >
+                    Close
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      setShowPublishPopup(false);
+                      setIsCurrentChatPublic(false);
+                      setIsReportGoodEnough(false);
+                    }}
+                    disabled={!isReportGoodEnough}
+                  >
+                    Unpublish Chat
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -517,7 +574,7 @@ function ChatPage() {
         >
           Back to Chat
         </button>
-      ) : (
+      ) : !is_current_chat_public ? (
         <>
           <div className="input-area">
             <textarea
@@ -570,6 +627,13 @@ function ChatPage() {
             </button>
           </div>
         </>
+      ) : (
+        <button
+          className="secondary unpublish-button"
+          onClick={() => setShowPublishPopup(true)}
+        >
+          Unpublish Chat
+        </button>
       )}
     </div>
   );
