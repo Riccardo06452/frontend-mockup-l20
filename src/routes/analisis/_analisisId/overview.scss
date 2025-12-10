@@ -44,6 +44,7 @@
       width: 60%;
       max-height: 90%;
       overflow-y: auto;
+      overflow-x: hidden;
       box-shadow: $box_shadow_common;
       transform: translate(-50%, -50%);
       color: $title_color;
@@ -303,4 +304,10 @@ input {
 .charts-buttons {
   display: flex;
   gap: $padding_medium;
+}
+
+.table-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 40vh;
 }

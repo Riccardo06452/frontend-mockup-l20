@@ -178,6 +178,7 @@ const useAnalysisOverview = create((set, get) => ({
     categories: [],
     dataset: [],
   },
+  fakeDatasetWithCategories: FAKE_DATSET_ID_CATEGORY_DESCRIPTIONS,
 
   setPreviousData: (categories, dataset, is_stored) => {
     set({

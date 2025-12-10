@@ -32,6 +32,7 @@ function AnalysisOverview() {
     setSelectedCategoryToCluster,
     selectedCategory,
     previous_data,
+    fakeDatasetWithCategories,
   } = useAnalysisOverview();
 
   const {
@@ -57,41 +58,23 @@ function AnalysisOverview() {
   };
 
   useEffect(() => {
-    const fackedCategories = [
-      "OLED SCHERMO GUASTO",
-      "OLED SOFTWARE GUASTO",
-      "DIFETTI ESTETICI",
-      "DIFETTI FUNZIONALI",
-      "DIFETTI FUNZIONALI",
-      "DIFETTI FUNZIONALI",
-      "DIFETTI FUNZIONALI",
-      "DIFETTI FUNZIONALI",
-      "DIFETTI FUNZIONALI",
-      "DIFETTI FUNZIONALI",
-    ];
-
     if (dashboardData != null && dashboardData.length > 0) {
       console.log("Dashboard data available:", dashboardData);
 
       if (data != null) {
+        const mockedCategoriesDict = {};
+        fakeDatasetWithCategories.forEach((data) => {
+          mockedCategoriesDict[data.category] = {
+            name: data.category,
+            selected: true,
+            description: data.description,
+          };
+        });
+        const mockedCategories = Object.values(mockedCategoriesDict);
         if (data.analysis_status == "Editing") {
-          setMockedCategoriesToValidate(
-            fackedCategories.map((cat) => {
-              return {
-                name: cat,
-                selected: true,
-              };
-            })
-          );
+          setMockedCategoriesToValidate(mockedCategories);
         } else if (categories == null || categories.length === 0) {
-          setMockedCategories(
-            fackedCategories.map((cat) => {
-              return {
-                name: cat,
-                selected: true,
-              };
-            })
-          );
+          setMockedCategories(mockedCategories);
         } else if (
           (dataset == null || dataset.length === 0) &&
           data.analysis_status != "Editing"
@@ -129,6 +112,7 @@ function AnalysisOverview() {
     fetchDataFromAnalysisId,
     setMockedData,
     fetchData,
+    fakeDatasetWithCategories,
     setMockedCategories,
     dataset,
     categories,

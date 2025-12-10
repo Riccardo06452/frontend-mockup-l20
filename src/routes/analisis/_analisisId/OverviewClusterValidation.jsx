@@ -23,42 +23,48 @@ function OverviewClusterValidation() {
     <div className="overlay">
       <div className="cluster-selection-menu">
         <h2>Categorie generate</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Description</th>
-              <th>Selected</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categoriesToValidate.map((category, index) => (
-              <tr
-                key={index}
-                onClick={() => {
-                  const newCategories = [...categoriesToValidate].map(
-                    (cat, catIndex) => {
-                      if (catIndex === index) {
-                        return {
-                          ...cat,
-                          selected: !cat.selected,
-                        };
-                      }
-                      return cat;
-                    }
-                  );
-                  setMockedCategoriesToValidate(newCategories);
-                }}
-              >
-                <td>{category.name}</td>
-                <td>{category.description}</td>
-                <td>
-                  <input type="checkbox" checked={category.selected} readOnly />
-                </td>
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Selected</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categoriesToValidate.map((category, index) => (
+                <tr
+                  key={index}
+                  onClick={() => {
+                    const newCategories = [...categoriesToValidate].map(
+                      (cat, catIndex) => {
+                        if (catIndex === index) {
+                          return {
+                            ...cat,
+                            selected: !cat.selected,
+                          };
+                        }
+                        return cat;
+                      }
+                    );
+                    setMockedCategoriesToValidate(newCategories);
+                  }}
+                >
+                  <td>{category.name}</td>
+                  <td>{category.description}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={category.selected}
+                      readOnly
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <br />
         <hr />
         <br />
