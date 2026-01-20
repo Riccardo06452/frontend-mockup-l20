@@ -206,6 +206,31 @@ const useAnalysisOverview = create((set, get) => ({
     });
   },
 
+  deleteCategoryAndReassignRecords: (category) => {
+    const other_categories = get().categories.filter(
+      (cat) => cat.name !== category
+    );
+    set({
+      dataset: get().dataset.map((value) => {
+        if (category === value.category) {
+          return {
+            ...value,
+            category:
+              other_categories.length > 0
+                ? other_categories[
+                    Math.floor(Math.random() * other_categories.length)
+                  ].name
+                : "Altro",
+          };
+        }
+        return value;
+      }),
+      categories: get()
+        .categories.filter((cat) => cat.name !== category)
+        .map((cat) => cat),
+    });
+  },
+
   setSelectedCategory: (category) => {
     set({ selectedCategory: category });
   },

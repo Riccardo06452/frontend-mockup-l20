@@ -14,6 +14,7 @@ import OverviewMainTables from "./OverviewMainTables";
 import OverviewDefaultCharts from "./OverviewDefaultCharts";
 import OverviewDropChangesAlert from "./OverviewDropChangesAlert";
 import { BackwardIcon } from "@heroicons/react/24/outline";
+import ClusterDeleteModal from "./ClusterDeleteModal";
 
 function AnalysisOverview() {
   const { analysisId } = useParams();
@@ -48,6 +49,7 @@ function AnalysisOverview() {
   const [showCharts, setShowCharts] = useState(false);
   const [showClusterStartMenu, setShowClusterStartMenu] = useState(false);
   const [showDropChangesAlert, setShowDropChangesAlert] = useState(false);
+  const [showClusterDeleteMenu, setShowClusterDeleteMenu] = useState(false);
 
   const openNewChat = () => {
     if (loadedChatsHistory == null || loadedChatsHistory.length === 0) {
@@ -149,6 +151,12 @@ function AnalysisOverview() {
         ></OverviewClusterMenuPrompt>
       )}
 
+      {showClusterDeleteMenu != "" && (
+        <ClusterDeleteModal
+          setShowClusterDeleteMenu={setShowClusterDeleteMenu}
+        />
+      )}
+
       {categoriesToValidate.length > 0 && <OverviewClusterValidation />}
       <div className="top-buttons">
         <button
@@ -211,6 +219,17 @@ function AnalysisOverview() {
           >
             {showCharts ? "Mostra Dataset" : "Mostra grafici"}
           </button>
+
+          <button
+            className="primary no-wrap"
+            onClick={() =>
+              alert(
+                "Questo pulsante crea una nuova analisi con stessi dati e stesse categorie ma in stato modificabile"
+              )
+            }
+          >
+            Duplicate Analysis
+          </button>
           <button
             className="primary no-wrap"
             onClick={() => createExcelFileForDataset(dataset, analysisId)}
@@ -219,7 +238,7 @@ function AnalysisOverview() {
           </button>
           <button
             className="primary no-wrap"
-            onClick={() => navigate(`/analysis/${analysisId}/delete`)}
+            onClick={() => alert("Genera QA Matrix")}
           >
             Genera QA Matrix
           </button>
@@ -240,6 +259,16 @@ function AnalysisOverview() {
             }}
           >
             Validate Analysis
+          </button>
+          <button
+            className="primary no-wrap big"
+            onClick={() => {
+              setSelectedCategoryToCluster(selectedCategory),
+                setShowClusterDeleteMenu(true);
+            }}
+            disabled={selectedCategory === ""}
+          >
+            Delete Cluster and Re-Cluster
           </button>
           <button
             className="primary no-wrap big"
